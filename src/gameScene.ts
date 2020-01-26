@@ -1,4 +1,5 @@
 import 'phaser';
+import { WelcomeScene } from './welcomeScene';
 
 export class GameScene extends Phaser.Scene {
     score: number;
@@ -7,6 +8,8 @@ export class GameScene extends Phaser.Scene {
     bombs: Phaser.Physics.Arcade.Group;
     platforms: Phaser.Physics.Arcade.StaticGroup;
     gameOver:boolean;
+    gameOverText: Phaser.GameObjects.Text;
+    gameOverHintText: Phaser.GameObjects.Text;
     player: Phaser.Physics.Arcade.Sprite;
     cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -87,13 +90,23 @@ export class GameScene extends Phaser.Scene {
         if (this.cursors.down.isDown) {
             this.player.setVelocityY(450);
         }
+
+        if (this.gameOver === true) {
+            if (this.cursors.space.isDown) {
+                this.scene.start("GameScene");
+            }
+        }
     }
 
-    private hitBomb(player: Phaser.Physics.Arcade.Sprite, bomb):void {
+    private hitBomb(player: Phaser.Physics.Arcade.Sprite):void {
         this.physics.pause();
         player.setTint(0xff0000);
         player.anims.play('turn');
-        this.gameOver = true;
+        this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+        this.time.delayedCall(1000, function (){
+            this.gameOver = true;
+            this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+        },[],this);
     }
 
     private collectStar(player, star):void {
