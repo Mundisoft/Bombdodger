@@ -1,20 +1,26 @@
 import "phaser";
 export class WelcomeScene extends Phaser.Scene {
   title: Phaser.GameObjects.Text;
-  hint: Phaser.GameObjects.Text;
-constructor() {
+  hint1: Phaser.GameObjects.Text;
+  hint2: Phaser.GameObjects.Text;
+
+  constructor() {
     super({
       key: "WelcomeScene"
     });
   }
-create(): void {
-    var titleText: string = "Bomb Dodger";
-    this.title = this.add.text(150, 200, titleText,
-      { font: '100px Arial Bold', fill: '#FBFBAC' });
-var hintText: string = "Any Key to Start";
-    this.hint = this.add.text(300, 350, hintText,
-      { font: '24px Arial Bold', fill: '#FBFBAC' });
-this.input.keyboard.on('keydown', function () {
+
+  create(): void {
+    let titleText: string = "Bomb Dodger";
+    this.title = this.add.text(150, 200, titleText, { font: '100px Arial Bold', fill: '#FBFBAC' });
+    let hint1Text: string = "Press 1 for Single Player";
+    this.hint1 = this.add.text(300, 350, hint1Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
+    let hint2Text: string = "Press 2 for Multiplayer";
+    this.hint2 = this.add.text(300, 390, hint2Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
+    this.input.keyboard.on('keydown-ONE', function () {
+      this.scene.start("GameScene");
+    }, this);
+    this.input.keyboard.on('keydown-TWO', function () {
       this.scene.start("GameScene");
     }, this);
   }
