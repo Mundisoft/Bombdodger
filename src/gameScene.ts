@@ -1,6 +1,4 @@
 import 'phaser';
-import { WelcomeScene } from './welcomeScene';
-
 export class GameScene extends Phaser.Scene {
     score: number;
     best: number;
@@ -13,8 +11,11 @@ export class GameScene extends Phaser.Scene {
     firstGame:boolean;
     gameOverText: Phaser.GameObjects.Text;
     gameOverHintText: Phaser.GameObjects.Text;
-    player: Phaser.Physics.Arcade.Sprite;
+    players: Phaser.Physics.Arcade.Group;
+    playerOne: Phaser.Physics.Arcade.Sprite;
+    playerTwo: Phaser.Physics.Arcade.Sprite;
     cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+    singleplayer: boolean;
 
     constructor(){
         super({
@@ -23,6 +24,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     init(params): void {
+        this.singleplayer = params.singleplayer;
         this.score = 0;
     }
 
@@ -32,6 +34,9 @@ export class GameScene extends Phaser.Scene {
         this.load.image('star', '/assets/star.png');
         this.load.image('bomb', '/assets/bomb.png');
         this.load.spritesheet('dude', '/assets/dude.png', {
+            frameWidth: 32, frameHeight: 48
+        });
+        this.load.spritesheet('dudeTwo', '/assets/dude2.png', {
             frameWidth: 32, frameHeight: 48
         });
     }
@@ -46,9 +51,12 @@ export class GameScene extends Phaser.Scene {
         this.platforms.create(50, 250, 'ground');
         this.platforms.create(750, 220, 'ground');
 
-        this.player = this.physics.add.sprite(100, 450, 'dude');
+        this.players = this.physics.add.group();
+        this.players.create(100,450,'dude');
+        this.players.create(700,450,'dudeTwo');
+
         this.bombs = this.physics.add.group();
-        this.score = 0;
+
         if (this.best == null) {
             this.best = 0;
             this.firstGame = true;
@@ -57,9 +65,10 @@ export class GameScene extends Phaser.Scene {
             this.firstGame = false;
         }
         this.gameOver = false;
-        this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'});
-        this.player.setCollideWorldBounds(true);
-
+        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
+        this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
+            player.setCollideWorldBounds(true);
+        });
         this.createAnims();
 
         this.stars = this.physics.add.group({
@@ -72,34 +81,34 @@ export class GameScene extends Phaser.Scene {
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
         });
     
-        this.physics.add.collider(this.player, this.platforms);
+        this.physics.add.collider(this.players, this.platforms);
         this.physics.add.collider(this.stars, this.platforms);
         this.physics.add.collider(this.bombs, this.platforms);
-        this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
-        this.physics.add.overlap(this.player, this.stars, this.collectStar , null, this);
+        this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
+        this.physics.add.overlap(this.players, this.stars, this.collectStar , null, this);
     
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update():void {
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-200);
-            this.player.anims.play('left', true);
+            this.playerOne.setVelocityX(-200);
+            this.playerOne.anims.play('left', true);
         }
         else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(200);
-            this.player.anims.play('right', true);
+            this.playerOne.setVelocityX(200);
+            this.playerOne.anims.play('right', true);
         }
         else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
+            this.playerOne.setVelocityX(0);
+            this.playerOne.anims.play('turn');
         }
-        if (this.cursors.up.isDown && this.player.body.touching.down) {
-            this.player.setVelocityY(-460);
+        if (this.cursors.up.isDown && this.playerOne.body.touching.down) {
+            this.playerOne.setVelocityY(-460);
         }
     
         if (this.cursors.down.isDown) {
-            this.player.setVelocityY(450);
+            this.playerOne.setVelocityY(460);
         }
 
         if (this.gameOver === true) {
@@ -147,6 +156,10 @@ export class GameScene extends Phaser.Scene {
             bomb.setCollideWorldBounds(true);
             bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
         }
+    }
+
+    private setupPlayerTwo():void {
+        this.playerTwo = this.physics.add.sprite(100, 450, 'dudeTwo');
     }
 
     private createAnims():void {

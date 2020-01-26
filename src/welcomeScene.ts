@@ -18,10 +18,10 @@ export class WelcomeScene extends Phaser.Scene {
     let hint2Text: string = "Press 2 for Multiplayer";
     this.hint2 = this.add.text(300, 390, hint2Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
     this.input.keyboard.on('keydown-ONE', function () {
-      this.scene.start("GameScene");
+      this.scene.start("GameScene", {singleplayer: true});
     }, this);
     this.input.keyboard.on('keydown-TWO', function () {
-      this.scene.start("GameScene");
+      this.scene.start("GameScene", {singleplayer: false});
     }, this);
   }
 };
