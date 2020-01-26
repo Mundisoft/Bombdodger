@@ -1,14 +1,20 @@
 {
-  "name": "phaserexample",
+  "name": "BombDodge",
   "version": "1.0.0",
   "description": "",
   "main": "index.html",
-  "dependencies": {
-    "phaser": "^3.22.0"
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1",
+    "phaser": "^3.22.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack",
+    "start": "start webpack --watch && start live-server --port=8085"
   },
   "author": "",
   "license": "ISC"
