@@ -45,6 +45,8 @@ export class GameScene extends Phaser.Scene {
 
         this.player = this.physics.add.sprite(100, 450, 'dude');
         this.bombs = this.physics.add.group();
+        this.score = 0;
+        this.gameOver = false;
         this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', });
 
         this.player.setCollideWorldBounds(true);
