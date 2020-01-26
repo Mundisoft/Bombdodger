@@ -3,11 +3,14 @@ import { WelcomeScene } from './welcomeScene';
 
 export class GameScene extends Phaser.Scene {
     score: number;
+    best: number;
     scoreText: Phaser.GameObjects.Text;
+    bestScoreText: Phaser.GameObjects.Text;
     stars: Phaser.Physics.Arcade.Group;
     bombs: Phaser.Physics.Arcade.Group;
     platforms: Phaser.Physics.Arcade.StaticGroup;
     gameOver:boolean;
+    firstGame:boolean;
     gameOverText: Phaser.GameObjects.Text;
     gameOverHintText: Phaser.GameObjects.Text;
     player: Phaser.Physics.Arcade.Sprite;
@@ -46,9 +49,15 @@ export class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(100, 450, 'dude');
         this.bombs = this.physics.add.group();
         this.score = 0;
+        if (this.best == null) {
+            this.best = 0;
+            this.firstGame = true;
+        } else {
+            this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '32px', fill: '#000'});
+            this.firstGame = false;
+        }
         this.gameOver = false;
-        this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', });
-
+        this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'});
         this.player.setCollideWorldBounds(true);
 
         this.createAnims();
@@ -115,6 +124,16 @@ export class GameScene extends Phaser.Scene {
         star.disableBody(true, true);
         this.score += 10;
         this.scoreText.setText('Score: ' + this.score);
+
+        if (this.best < this.score) {
+            this.best = this.score;
+            if (this.firstGame != true) {
+                this.bestScoreText.setText('Best : ' + this.best);
+                this.bestScoreText.setColor('Green');
+                this.bestScoreText.setFontSize(40);
+            }
+        }
+
     
         if (this.stars.countActive(true) === 0) {
             this.stars.children.iterate(function(child:Phaser.Physics.Arcade.Sprite){
