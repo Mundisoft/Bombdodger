@@ -37,13 +37,10 @@ function create(){
     platforms.create(600, 400, 'ground');
     platforms.create(50, 250, 'ground');
     platforms.create(750, 220, 'ground');
-
     player = this.physics.add.sprite(100, 450, 'dude');
     bombs = this.physics.add.group();
-
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', });
 
- //   player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
     this.anims.create({
