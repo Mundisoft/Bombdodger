@@ -9,3 +9,5 @@ Powerups
 Different enemy types
 
 Different Levels
+
+Better Collisions
