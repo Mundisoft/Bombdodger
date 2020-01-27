@@ -1,8 +1,10 @@
 import 'phaser';
 export class GameScene extends Phaser.Scene {
     score: number;
+    scoreTwo: number;
     best: number;
     scoreText: Phaser.GameObjects.Text;
+    scoreTextTwo: Phaser.GameObjects.Text;
     bestScoreText: Phaser.GameObjects.Text;
     stars: Phaser.Physics.Arcade.Group;
     bombs: Phaser.Physics.Arcade.Group;
@@ -14,6 +16,8 @@ export class GameScene extends Phaser.Scene {
     players: Phaser.Physics.Arcade.Group;
     playerOne: Phaser.Physics.Arcade.Sprite;
     playerTwo: Phaser.Physics.Arcade.Sprite;
+    playerOneDead: boolean;
+    playerTwoDead: boolean;
     singleplayer: boolean;
     movespeed: number;
     jumpspeed: number;
@@ -37,8 +41,11 @@ export class GameScene extends Phaser.Scene {
     init(params): void {
         this.singleplayer = params.singleplayer;
         this.score = 0;
+        this.scoreTwo = 0;
         this.movespeed = 200;
         this.jumpspeed = 460;
+        this.playerOneDead = false;
+        this.playerTwoDead = false;
     }
 
     preload():void {
@@ -66,25 +73,28 @@ export class GameScene extends Phaser.Scene {
 
         this.players = this.physics.add.group();
         this.players.create(100,450,'dude');
+        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
 
         if (!this.singleplayer) {
             this.players.create(700,450,'dudeTwo');
+            this.scoreTextTwo = this.add.text(600, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
+        } else {
+            if (this.best == null) {
+                this.best = 0;
+                this.firstGame = true;
+            } else {
+                this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '32px', fill: '#000'});
+                this.firstGame = false;
+            }
         }
 
         this.bombs = this.physics.add.group();
-
-        if (this.best == null) {
-            this.best = 0;
-            this.firstGame = true;
-        } else {
-            this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '32px', fill: '#000'});
-            this.firstGame = false;
-        }
         this.gameOver = false;
-        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
+
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
             player.setCollideWorldBounds(true);
         });
+        // add this to above iterator - DRY
         this.createAnims();
 
         this.stars = this.physics.add.group({
@@ -98,6 +108,7 @@ export class GameScene extends Phaser.Scene {
         });
     
         this.physics.add.collider(this.players, this.platforms);
+        this.physics.add.collider(this.players, this.players);
         this.physics.add.collider(this.stars, this.platforms);
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
@@ -171,29 +182,42 @@ export class GameScene extends Phaser.Scene {
     }
 
     private hitBomb(player: Phaser.Physics.Arcade.Sprite):void {
-        this.physics.pause();
-        player.setTint(0xff0000);
-        player.anims.play('turn');
-        this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
-        this.time.delayedCall(1000, function (){
-            this.gameOver = true;
-            this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
-        },[],this);
+        if (this.singleplayer) {
+            this.physics.pause();
+            player.setTint(0xff0000);
+            player.anims.play('turn');
+            this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+            this.time.delayedCall(1000, function (){
+                this.gameOver = true;
+                this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+            },[],this);
+
+        }
     }
 
     private collectStar(player, star):void {
         star.disableBody(true, true);
-        this.score += 10;
-        this.scoreText.setText('Score: ' + this.score);
 
-        if (this.best < this.score) {
-            this.best = this.score;
-            if (this.firstGame != true) {
-                this.bestScoreText.setText('Best : ' + this.best);
-                this.bestScoreText.setColor('Green');
-                this.bestScoreText.setFontSize(40);
+        if (player === this.players.getFirst(true)) {
+            this.score += 10;
+            this.scoreText.setText('Score: ' + this.score);
+        } else {
+            this.scoreTwo += 10;
+            this.scoreTextTwo.setText('Score: ' + this.scoreTwo);
+        }
+
+        if(this.singleplayer){
+            if (this.best < this.score) {
+                this.best = this.score;
+                if (this.firstGame != true) {
+                    this.bestScoreText.setText('Best : ' + this.best);
+                    this.bestScoreText.setColor('Green');
+                    this.bestScoreText.setFontSize(40);
+                }
             }
         }
+
+
 
     
         if (this.stars.countActive(true) === 0) {
@@ -208,10 +232,6 @@ export class GameScene extends Phaser.Scene {
             bomb.setCollideWorldBounds(true);
             bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
         }
-    }
-
-    private setupPlayerTwo():void {
-        this.playerTwo = this.physics.add.sprite(100, 450, 'dudeTwo');
     }
 
     private createAnims():void {

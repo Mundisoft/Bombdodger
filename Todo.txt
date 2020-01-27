@@ -11,3 +11,6 @@ Different enemy types
 Different Levels
 
 Better Collisions
+
+Less Globals
+Create Player Object that has all it's elements included
