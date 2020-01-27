@@ -1,10 +1,6 @@
 import 'phaser';
 export class GameScene extends Phaser.Scene {
-    score: number;
-    scoreTwo: number;
     best: number;
-    scoreText: Phaser.GameObjects.Text;
-    scoreTextTwo: Phaser.GameObjects.Text;
     bestScoreText: Phaser.GameObjects.Text;
     stars: Phaser.Physics.Arcade.Group;
     bombs: Phaser.Physics.Arcade.Group;
@@ -14,23 +10,13 @@ export class GameScene extends Phaser.Scene {
     gameOverText: Phaser.GameObjects.Text;
     gameOverHintText: Phaser.GameObjects.Text;
     players: Phaser.Physics.Arcade.Group;
-    playerOne: Phaser.Physics.Arcade.Sprite;
-    playerTwo: Phaser.Physics.Arcade.Sprite;
-    playerOneDead: boolean;
-    playerTwoDead: boolean;
+
     singleplayer: boolean;
     movespeed: number;
     jumpspeed: number;
   
-    W: Phaser.Input.Keyboard.Key;
-    S: Phaser.Input.Keyboard.Key;
-    A: Phaser.Input.Keyboard.Key;
-    D: Phaser.Input.Keyboard.Key;
     SPACE: Phaser.Input.Keyboard.Key;
-    UP: Phaser.Input.Keyboard.Key;
-    DOWN: Phaser.Input.Keyboard.Key;
-    LEFT: Phaser.Input.Keyboard.Key;
-    RIGHT: Phaser.Input.Keyboard.Key;
+
 
     constructor(){
         super({
@@ -39,13 +25,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     init(params): void {
+        this.gameOver = false;
         this.singleplayer = params.singleplayer;
-        this.score = 0;
-        this.scoreTwo = 0;
         this.movespeed = 200;
         this.jumpspeed = 460;
-        this.playerOneDead = false;
-        this.playerTwoDead = false;
     }
 
     preload():void {
@@ -63,8 +46,6 @@ export class GameScene extends Phaser.Scene {
 
     create():void {
         this.add.image(400, 300, 'sky');
-
-        //find cleaner way
         this.platforms = this.physics.add.staticGroup();
         this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(600, 400, 'ground');
@@ -72,31 +53,46 @@ export class GameScene extends Phaser.Scene {
         this.platforms.create(750, 220, 'ground');
 
         this.players = this.physics.add.group();
-        this.players.create(100,450,'dude');
-        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
+        let playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'dude').setData({
+            score: 0,
+            scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
+            dead: false,
+            up: this.input.keyboard.addKey('w'),
+            down: this.input.keyboard.addKey('s'),
+            left: this.input.keyboard.addKey('a'),
+            right: this.input.keyboard.addKey('d')
+        });
+
+        let playerTwo: Phaser.Physics.Arcade.Sprite;
 
         if (!this.singleplayer) {
-            this.players.create(700,450,'dudeTwo');
-            this.scoreTextTwo = this.add.text(600, 16, 'Score: ' + this.score, { fontSize: '32px', fill: '#000'});
-        } else {
+            playerTwo = this.players.create(700,450,'dudeTwo').setData({
+                score: 0,
+                scoreText: this.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
+                dead: false,
+                up: this.input.keyboard.addKey('up'),
+                down: this.input.keyboard.addKey('down'),
+                left: this.input.keyboard.addKey('left'),
+                right: this.input.keyboard.addKey('right')
+            });
+        }
+        else {
             if (this.best == null) {
                 this.best = 0;
                 this.firstGame = true;
-            } else {
+            }
+            else {
                 this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '32px', fill: '#000'});
                 this.firstGame = false;
             }
         }
-
-        this.bombs = this.physics.add.group();
-        this.gameOver = false;
-
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
             player.setCollideWorldBounds(true);
         });
-        // add this to above iterator - DRY
         this.createAnims();
 
+
+        this.bombs = this.physics.add.group();
         this.stars = this.physics.add.group({
             key: 'star',
             repeat: 11,
@@ -113,67 +109,31 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar , null, this);
-    
 
-        // I hate this implementation, but I can't figure out how to type the addKeys object correctly
-        this.UP = this.input.keyboard.addKey('up');
-        this.DOWN = this.input.keyboard.addKey('down');
-        this.LEFT = this.input.keyboard.addKey('left');
-        this.RIGHT = this.input.keyboard.addKey('right');
         this.SPACE = this.input.keyboard.addKey('space');
-        this.W = this.input.keyboard.addKey('W');
-        this.S = this.input.keyboard.addKey('S');
-        this.A = this.input.keyboard.addKey('A');
-        this.D = this.input.keyboard.addKey('D');
-         
     }
     
-    update():void {
-        const playerOne = this.players.getFirst(true);
-
-        if (this.LEFT.isDown) {
-            playerOne.setVelocityX(-this.movespeed);
-            playerOne.anims.play('playerOneLeft', true);
-        }
-        else if (this.RIGHT.isDown) {
-            playerOne.setVelocityX(this.movespeed);
-            playerOne.anims.play('playerOneRight', true);
-        }
-        else {
-            playerOne.setVelocityX(0);
-            playerOne.anims.play('playerOneTurn');
-        }
-        if (this.UP.isDown && playerOne.body.touching.down) {
-            playerOne.setVelocityY(-this.jumpspeed);
-        }
-    
-        if (this.DOWN.isDown) {
-            playerOne.setVelocityY(this.jumpspeed);
-        }
-
-        if(!this.singleplayer){
-            const playerTwo = this.players.getLast(true);
-            if (this.A.isDown) {
-                playerTwo.setVelocityX(-this.movespeed);
-                playerTwo.anims.play('playerTwoLeft', true);
+    update():void {        
+        this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite){
+            if (player.getData('left').isDown) {
+                player.setVelocityX(-this.movespeed);
+                player.anims.play('playerOneLeft', true);
             }
-            else if (this.D.isDown) {
-                playerTwo.setVelocityX(this.movespeed);
-                playerTwo.anims.play('playerTwoRight', true);
+            else if (player.getData('right').isDown) {
+                player.setVelocityX(this.movespeed);
+                player.anims.play('playerOneRight', true);
             }
             else {
-                playerTwo.setVelocityX(0);
-                playerTwo.anims.play('playerTwoTurn');
+                player.setVelocityX(0);
+                player.anims.play('playerOneTurn');
             }
-            if (this.W.isDown && playerTwo.body.touching.down) {
-                playerTwo.setVelocityY(-this.jumpspeed);
+            if (player.getData('up').isDown && player.body.touching.down){
+                player.setVelocityY(-this.jumpspeed);
+            } else if (player.getData('down').isDown) {
+                player.setVelocityY(this.jumpspeed);
             }
-        
-            if (this.S.isDown) {
-                playerTwo.setVelocityY(this.jumpspeed);
-            }
-        }
 
+        },this);   
         if (this.gameOver === true) {
             if (this.SPACE.isDown) {
                 this.scene.start("GameScene", {singleplayer: this.singleplayer});                
@@ -198,17 +158,12 @@ export class GameScene extends Phaser.Scene {
     private collectStar(player, star):void {
         star.disableBody(true, true);
 
-        if (player === this.players.getFirst(true)) {
-            this.score += 10;
-            this.scoreText.setText('Score: ' + this.score);
-        } else {
-            this.scoreTwo += 10;
-            this.scoreTextTwo.setText('Score: ' + this.scoreTwo);
-        }
+        player.data.values.score += 10;
+        player.data.values.scoreText.setText('Score: ' + player.getData('score'));
 
         if(this.singleplayer){
-            if (this.best < this.score) {
-                this.best = this.score;
+            if (player.getData('data') < player.getData('score')) {
+                player.data.values.best = player.getData('score');
                 if (this.firstGame != true) {
                     this.bestScoreText.setText('Best : ' + this.best);
                     this.bestScoreText.setColor('Green');
