@@ -14,8 +14,19 @@ export class GameScene extends Phaser.Scene {
     players: Phaser.Physics.Arcade.Group;
     playerOne: Phaser.Physics.Arcade.Sprite;
     playerTwo: Phaser.Physics.Arcade.Sprite;
-    cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     singleplayer: boolean;
+    movespeed: number;
+    jumpspeed: number;
+  
+    W: Phaser.Input.Keyboard.Key;
+    S: Phaser.Input.Keyboard.Key;
+    A: Phaser.Input.Keyboard.Key;
+    D: Phaser.Input.Keyboard.Key;
+    SPACE: Phaser.Input.Keyboard.Key;
+    UP: Phaser.Input.Keyboard.Key;
+    DOWN: Phaser.Input.Keyboard.Key;
+    LEFT: Phaser.Input.Keyboard.Key;
+    RIGHT: Phaser.Input.Keyboard.Key;
 
     constructor(){
         super({
@@ -26,6 +37,8 @@ export class GameScene extends Phaser.Scene {
     init(params): void {
         this.singleplayer = params.singleplayer;
         this.score = 0;
+        this.movespeed = 200;
+        this.jumpspeed = 460;
     }
 
     preload():void {
@@ -53,7 +66,10 @@ export class GameScene extends Phaser.Scene {
 
         this.players = this.physics.add.group();
         this.players.create(100,450,'dude');
-        this.players.create(700,450,'dudeTwo');
+
+        if (!this.singleplayer) {
+            this.players.create(700,450,'dudeTwo');
+        }
 
         this.bombs = this.physics.add.group();
 
@@ -87,33 +103,69 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar , null, this);
     
-        this.cursors = this.input.keyboard.createCursorKeys();
-    }
 
+        // I hate this implementation, but I can't figure out how to type the addKeys object correctly
+        this.UP = this.input.keyboard.addKey('up');
+        this.DOWN = this.input.keyboard.addKey('down');
+        this.LEFT = this.input.keyboard.addKey('left');
+        this.RIGHT = this.input.keyboard.addKey('right');
+        this.SPACE = this.input.keyboard.addKey('space');
+        this.W = this.input.keyboard.addKey('W');
+        this.S = this.input.keyboard.addKey('S');
+        this.A = this.input.keyboard.addKey('A');
+        this.D = this.input.keyboard.addKey('D');
+         
+    }
+    
     update():void {
-        if (this.cursors.left.isDown) {
-            this.playerOne.setVelocityX(-200);
-            this.playerOne.anims.play('left', true);
+        const playerOne = this.players.getFirst(true);
+
+        if (this.LEFT.isDown) {
+            playerOne.setVelocityX(-this.movespeed);
+            playerOne.anims.play('playerOneLeft', true);
         }
-        else if (this.cursors.right.isDown) {
-            this.playerOne.setVelocityX(200);
-            this.playerOne.anims.play('right', true);
+        else if (this.RIGHT.isDown) {
+            playerOne.setVelocityX(this.movespeed);
+            playerOne.anims.play('playerOneRight', true);
         }
         else {
-            this.playerOne.setVelocityX(0);
-            this.playerOne.anims.play('turn');
+            playerOne.setVelocityX(0);
+            playerOne.anims.play('playerOneTurn');
         }
-        if (this.cursors.up.isDown && this.playerOne.body.touching.down) {
-            this.playerOne.setVelocityY(-460);
+        if (this.UP.isDown && playerOne.body.touching.down) {
+            playerOne.setVelocityY(-this.jumpspeed);
         }
     
-        if (this.cursors.down.isDown) {
-            this.playerOne.setVelocityY(460);
+        if (this.DOWN.isDown) {
+            playerOne.setVelocityY(this.jumpspeed);
+        }
+
+        if(!this.singleplayer){
+            const playerTwo = this.players.getLast(true);
+            if (this.A.isDown) {
+                playerTwo.setVelocityX(-this.movespeed);
+                playerTwo.anims.play('playerTwoLeft', true);
+            }
+            else if (this.D.isDown) {
+                playerTwo.setVelocityX(this.movespeed);
+                playerTwo.anims.play('playerTwoRight', true);
+            }
+            else {
+                playerTwo.setVelocityX(0);
+                playerTwo.anims.play('playerTwoTurn');
+            }
+            if (this.W.isDown && playerTwo.body.touching.down) {
+                playerTwo.setVelocityY(-this.jumpspeed);
+            }
+        
+            if (this.S.isDown) {
+                playerTwo.setVelocityY(this.jumpspeed);
+            }
         }
 
         if (this.gameOver === true) {
-            if (this.cursors.space.isDown) {
-                this.scene.start("GameScene");
+            if (this.SPACE.isDown) {
+                this.scene.start("GameScene", {singleplayer: this.singleplayer});                
             }
         }
     }
@@ -164,21 +216,40 @@ export class GameScene extends Phaser.Scene {
 
     private createAnims():void {
         this.anims.create({
-            key: 'left',
+            key: 'playerOneLeft',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3}),
             frameRate: 10,
             repeat: -1
         });
     
         this.anims.create({
-            key: 'turn',
+            key: 'playerOneTurn',
             frames: [ { key: 'dude', frame: 4 } ],
             frameRate: 20
         });
     
         this.anims.create({
-            key: 'right',
+            key: 'playerOneRight',
             frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'playerTwoLeft',
+            frames: this.anims.generateFrameNumbers('dudeTwo', { start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+    
+        this.anims.create({
+            key: 'playerTwoTurn',
+            frames: [ { key: 'dudeTwo', frame: 4 } ],
+            frameRate: 20
+        });
+    
+        this.anims.create({
+            key: 'playerTwoRight',
+            frames: this.anims.generateFrameNumbers('dudeTwo', { start: 5, end: 8 }),
             frameRate: 10,
             repeat: -1
         });
