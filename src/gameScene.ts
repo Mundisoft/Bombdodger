@@ -104,7 +104,9 @@ export class GameScene extends Phaser.Scene {
         });
     
         this.physics.add.collider(this.players, this.platforms);
-        this.physics.add.collider(this.players, this.players);
+        // remove player collisions until bug resolved
+        // bug - falls through terrain when jumped on
+        //this.physics.add.collider(this.players, this.players);
         this.physics.add.collider(this.stars, this.platforms);
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
