@@ -24,7 +24,7 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    init(params): void {
+    init(params: any): void {
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
         this.movespeed = 200;
@@ -53,7 +53,8 @@ export class GameScene extends Phaser.Scene {
         this.platforms.create(750, 220, 'ground');
 
         this.players = this.physics.add.group();
-        let playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'dude').setData({
+
+        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'dude').setData({
             score: 0,
             scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
             dead: false,
@@ -63,18 +64,21 @@ export class GameScene extends Phaser.Scene {
             right: this.input.keyboard.addKey('d')
         });
 
-        let playerTwo: Phaser.Physics.Arcade.Sprite;
+        this.setAnims(playerOne);
+
+
 
         if (!this.singleplayer) {
-            playerTwo = this.players.create(700,450,'dudeTwo').setData({
+            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(700,450,'dudeTwo').setData({
                 score: 0,
                 scoreText: this.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
                 dead: false,
                 up: this.input.keyboard.addKey('up'),
                 down: this.input.keyboard.addKey('down'),
                 left: this.input.keyboard.addKey('left'),
-                right: this.input.keyboard.addKey('right')
+                right: this.input.keyboard.addKey('right'),
             });
+            this.setAnims(playerTwo);
         }
         else {
             if (this.best == null) {
@@ -89,8 +93,6 @@ export class GameScene extends Phaser.Scene {
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
             player.setCollideWorldBounds(true);
         });
-        this.createAnims();
-
 
         this.bombs = this.physics.add.group();
         this.stars = this.physics.add.group({
@@ -119,21 +121,22 @@ export class GameScene extends Phaser.Scene {
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite){
             if (player.getData('left').isDown) {
                 player.setVelocityX(-this.movespeed);
-                player.anims.play('playerOneLeft', true);
+                player.anims.play(player.texture.key + 'left', true);
             }
             else if (player.getData('right').isDown) {
                 player.setVelocityX(this.movespeed);
-                player.anims.play('playerOneRight', true);
+                player.anims.play(player.texture.key + 'right', true);
             }
             else {
                 player.setVelocityX(0);
-                player.anims.play('playerOneTurn');
+                player.anims.play(player.texture.key + 'turn');
             }
             if (player.getData('up').isDown && player.body.touching.down){
                 player.setVelocityY(-this.jumpspeed);
             } else if (player.getData('down').isDown) {
                 player.setVelocityY(this.jumpspeed);
             }
+
 
         },this);   
         if (this.gameOver === true) {
@@ -173,10 +176,6 @@ export class GameScene extends Phaser.Scene {
                 }
             }
         }
-
-
-
-    
         if (this.stars.countActive(true) === 0) {
             this.stars.children.iterate(function(child:Phaser.Physics.Arcade.Sprite){
                 child.enableBody(true, child.x, 0, true, true);
@@ -191,45 +190,26 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    private createAnims():void {
+    private setAnims(player: Phaser.Physics.Arcade.Sprite):void {
+
         this.anims.create({
-            key: 'playerOneLeft',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3}),
+            key: player.texture.key + 'left',
+            frames: this.anims.generateFrameNumbers(player.texture.key, { start: 0, end: 3}),
             frameRate: 10,
             repeat: -1
         });
-    
+
         this.anims.create({
-            key: 'playerOneTurn',
-            frames: [ { key: 'dude', frame: 4 } ],
+            key: player.texture.key + 'right',
+            frames: this.anims.generateFrameNumbers(player.texture.key, { start: 5, end: 8}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: player.texture.key + 'turn',
+            frames: [ { key: player.texture.key, frame: 4 } ],
             frameRate: 20
         });
-    
-        this.anims.create({
-            key: 'playerOneRight',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'playerTwoLeft',
-            frames: this.anims.generateFrameNumbers('dudeTwo', { start: 0, end: 3}),
-            frameRate: 10,
-            repeat: -1
-        });
-    
-        this.anims.create({
-            key: 'playerTwoTurn',
-            frames: [ { key: 'dudeTwo', frame: 4 } ],
-            frameRate: 20
-        });
-    
-        this.anims.create({
-            key: 'playerTwoRight',
-            frames: this.anims.generateFrameNumbers('dudeTwo', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-    }
-    
+    }  
 };
