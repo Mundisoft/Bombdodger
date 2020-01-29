@@ -14,6 +14,8 @@ export class GameScene extends Phaser.Scene {
     singleplayer: boolean;
     movespeed: number;
     jumpspeed: number;
+
+    playersleft: number
   
     SPACE: Phaser.Input.Keyboard.Key;
 
@@ -29,6 +31,7 @@ export class GameScene extends Phaser.Scene {
         this.singleplayer = params.singleplayer;
         this.movespeed = 200;
         this.jumpspeed = 460;
+        this.playersleft = 1;
     }
 
     preload():void {
@@ -55,6 +58,7 @@ export class GameScene extends Phaser.Scene {
         this.players = this.physics.add.group();
 
         const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'dude').setData({
+            name: 'Player 1',
             score: 0,
             scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
             dead: false,
@@ -66,10 +70,9 @@ export class GameScene extends Phaser.Scene {
 
         this.setAnims(playerOne);
 
-
-
         if (!this.singleplayer) {
             const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(700,450,'dudeTwo').setData({
+                name: 'Player 2',
                 score: 0,
                 scoreText: this.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
                 dead: false,
@@ -79,6 +82,7 @@ export class GameScene extends Phaser.Scene {
                 right: this.input.keyboard.addKey('right'),
             });
             this.setAnims(playerTwo);
+            this.playersleft ++;
         }
         else {
             if (this.best == null) {
@@ -157,6 +161,29 @@ export class GameScene extends Phaser.Scene {
                 this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
             },[],this);
 
+        } else if (!player.getData('dead')){
+            this.playersleft --;
+            player.setTint(0xff0000);
+            player.anims.play('turn');
+            player.disableBody();
+
+            if (this.playersleft === 0) {
+                if (this.players.getFirst(true).getData('score') > this.players.getLast(true).getData('score')) {
+                    this.gameOverText = this.add.text(400, 300, 'PLAYER 1 WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                } else if (this.players.getFirst(true).getData('score') < this.players.getLast(true).getData('score')) {
+                    this.gameOverText = this.add.text(400, 300, 'PLAYER 2 WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                } else {
+                    this.gameOverText = this.add.text(400, 300,  player.getData('name') + ' WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                }
+                this.time.delayedCall(1000, function (){
+                    this.gameOver = true;
+                    this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+                },[],this);
+            } else {
+                this.time.delayedCall(2000, function (){
+                    player.setVisible(false);
+                });
+            }
         }
     }
 
