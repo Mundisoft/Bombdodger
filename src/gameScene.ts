@@ -29,8 +29,8 @@ export class GameScene extends Phaser.Scene {
     init(params: any): void {
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
-        this.movespeed = 200;
-        this.jumpspeed = 460;
+        this.movespeed = 300;
+        this.jumpspeed = 800;
         this.playersleft = 1;
     }
 
