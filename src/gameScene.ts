@@ -33,7 +33,6 @@ export class GameScene extends Phaser.Scene {
         this.movespeed = 300;
         this.jumpspeed = 800;
         this.playersleft = 1;
-
         //number of times a player can jump without touching down
         this.doublejumps = 1;
     }
@@ -202,8 +201,8 @@ export class GameScene extends Phaser.Scene {
         player.data.values.scoreText.setText('Score: ' + player.getData('score'));
 
         if(this.singleplayer){
-            if (player.getData('data') < player.getData('score')) {
-                player.data.values.best = player.getData('score');
+            if (this.best < player.getData('score')) {
+                this.best = player.getData('score');
                 if (this.firstGame != true) {
                     this.bestScoreText.setText('Best : ' + this.best);
                     this.bestScoreText.setColor('Green');
