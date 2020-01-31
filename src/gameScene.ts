@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
     singleplayer: boolean;
     movespeed: number;
     jumpspeed: number;
+    doublejumps: number;
 
     playersleft: number
   
@@ -32,6 +33,9 @@ export class GameScene extends Phaser.Scene {
         this.movespeed = 300;
         this.jumpspeed = 800;
         this.playersleft = 1;
+
+        //number of times a player can jump without touching down
+        this.doublejumps = 1;
     }
 
     preload():void {
@@ -65,7 +69,8 @@ export class GameScene extends Phaser.Scene {
             up: this.input.keyboard.addKey('w'),
             down: this.input.keyboard.addKey('s'),
             left: this.input.keyboard.addKey('a'),
-            right: this.input.keyboard.addKey('d')
+            right: this.input.keyboard.addKey('d'),
+            doublejumps: this.doublejumps
         });
 
         this.setAnims(playerOne);
@@ -80,6 +85,7 @@ export class GameScene extends Phaser.Scene {
                 down: this.input.keyboard.addKey('down'),
                 left: this.input.keyboard.addKey('left'),
                 right: this.input.keyboard.addKey('right'),
+                doublejumps: this.doublejumps
             });
             this.setAnims(playerTwo);
             this.playersleft ++;
@@ -137,11 +143,13 @@ export class GameScene extends Phaser.Scene {
             }
             if (player.getData('up').isDown && player.body.touching.down){
                 player.setVelocityY(-this.jumpspeed);
-            } else if (player.getData('down').isDown) {
-                player.setVelocityY(this.jumpspeed);
+                this.time.delayedCall(200, function(){
+                    player.data.values.doublejumps++;
+                });
+            } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
+                player.setVelocityY(-this.jumpspeed);
+                player.data.values.doublejumps--;
             }
-
-
         },this);   
         if (this.gameOver === true) {
             if (this.SPACE.isDown) {
