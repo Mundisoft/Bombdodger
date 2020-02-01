@@ -1,4 +1,3 @@
-Add 2 Player
 
 High Score Board
 
@@ -12,5 +11,7 @@ Different Levels
 
 Better Collisions
 
-Less Globals
-Create Player Object that has all it's elements included
+Event driven as opposed to listener
+
+Lower gravity for things that aren't the player?
+
