@@ -16,8 +16,8 @@ export class GameScene extends Phaser.Scene {
     jumpspeed: number;
     doublejumps: number;
 
-    playersleft: number
-  
+    playersleft: number;
+ 
     SPACE: Phaser.Input.Keyboard.Key;
 
 
@@ -48,6 +48,22 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('dudeTwo', '/assets/dude2.png', {
             frameWidth: 32, frameHeight: 48
         });
+
+
+        this.load.image('Owl', '/assets/Owlet_Monster.png');
+
+        this.load.spritesheet('Owl_idle', '/assets/Owlet_Monster_Idle_4.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Owl_run', '/assets/Owlet_Monster_Run_6.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Owl_jump', '/assets/Owlet_Monster_Jump_8.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Owl_die', '/assets/Owlet_Monster_Death_8.png', {
+            frameWidth: 32, frameHeight: 32
+        });
     }
 
     create():void {
@@ -60,8 +76,9 @@ export class GameScene extends Phaser.Scene {
 
         this.players = this.physics.add.group();
 
-        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'dude').setData({
+        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'Owl').setData({
             name: 'Player 1',
+            key: 'Owl',
             score: 0,
             scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
             dead: false,
@@ -126,45 +143,50 @@ export class GameScene extends Phaser.Scene {
         this.SPACE = this.input.keyboard.addKey('space');
     }
     
-    update():void {        
-        this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite){
-            if (player.getData('left').isDown) {
-                player.setVelocityX(-this.movespeed);
-                player.anims.play(player.texture.key + 'left', true);
-            }
-            else if (player.getData('right').isDown) {
-                player.setVelocityX(this.movespeed);
-                player.anims.play(player.texture.key + 'right', true);
-            }
-            else {
-                player.setVelocityX(0);
-                player.anims.play(player.texture.key + 'turn');
-            }
-            if (player.getData('up').isDown && player.body.touching.down){
-                player.setVelocityY(-this.jumpspeed);
-                this.time.delayedCall(200, function(){
-                    player.data.values.doublejumps++;
-                });
-            } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
-                player.setVelocityY(-this.jumpspeed);
-                player.data.values.doublejumps--;
-            }
-        },this);   
-        if (this.gameOver === true) {
-            if (this.SPACE.isDown) {
-                this.scene.start("GameScene", {singleplayer: this.singleplayer});                
-            }
+    update():void {   
+        if (this.gameOver !== true) {
+            this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite){
+                if (player.getData('left').isDown) {
+                    player.setVelocityX(-this.movespeed);
+                    player.anims.play(player.getData('key') + '_left', true);
+                    player.setFlipX(true);
+                }
+                else if (player.getData('right').isDown) {
+                    player.setVelocityX(this.movespeed);
+                    player.anims.play(player.getData('key') + '_right', true);
+                    player.setFlipX(false);
+                }
+                else {
+                    player.setVelocityX(0);
+                    if (player.body.touching.down) {
+                        player.anims.play(player.getData('key') + '_idle', true);
+                    }
+                }
+                if (player.getData('up').isDown && player.body.touching.down){
+                    player.anims.play(player.getData('key') + '_jump', true);
+                    player.setVelocityY(-this.jumpspeed);
+                    this.time.delayedCall(200, function(){
+                        player.data.values.doublejumps++;
+                    });
+                } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
+                    player.setVelocityY(-this.jumpspeed);
+                    player.data.values.doublejumps--;
+                }
+            },this);   
         }
+
+       else if (this.SPACE.isDown) {
+                this.scene.start("GameScene", {singleplayer: this.singleplayer});                
+        } 
     }
 
     private hitBomb(player: Phaser.Physics.Arcade.Sprite):void {
         if (this.singleplayer) {
-            this.physics.pause();
-            player.setTint(0xff0000);
-            player.anims.play('turn');
+            player.anims.play(player.getData('key') + '_die');
+
             this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+            this.gameOver = true;
             this.time.delayedCall(1000, function (){
-                this.gameOver = true;
                 this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
             },[],this);
 
@@ -227,23 +249,45 @@ export class GameScene extends Phaser.Scene {
     private setAnims(player: Phaser.Physics.Arcade.Sprite):void {
 
         this.anims.create({
-            key: player.texture.key + 'left',
-            frames: this.anims.generateFrameNumbers(player.texture.key, { start: 0, end: 3}),
+            key: player.getData('key') + '_left',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_run', {start: 0, end: 5}),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
-            key: player.texture.key + 'right',
-            frames: this.anims.generateFrameNumbers(player.texture.key, { start: 5, end: 8}),
+            key: player.getData('key') + '_right',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_run', { start: 0, end: 5}),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
-            key: player.texture.key + 'turn',
-            frames: [ { key: player.texture.key, frame: 4 } ],
-            frameRate: 20
+            key: player.getData('key') + '_jump',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_jump', { start: 0, end: 7}),
+            frameRate: 20,
         });
+
+        this.anims.create({
+            key: player.getData('key') + '_die',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_die', { start: 0, end: 7}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: player.getData('key') + '_idle',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_idle', { start: 0, end: 3}),
+            frameRate: 5,
+            repeat: -1,
+        });       
+
+        this.anims.create({
+            key: player.getData('key') + '_die',
+            frames: this.anims.generateFrameNumbers(player.texture.key + '_die', { start: 0, end: 7}),
+            frameRate: 5,
+            repeat:0,
+            hideOnComplete: true
+        });   
     }  
 };
