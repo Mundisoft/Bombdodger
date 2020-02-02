@@ -33,8 +33,8 @@ export class GameScene extends Phaser.Scene {
     init(params: any): void {
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
-        this.movespeed = 300;
-        this.jumpspeed = 800;
+        this.movespeed = 150;
+        this.jumpspeed = 300;
         this.playersleft = 1;
         //number of times a player can jump without touching down
         this.doublejumps = 1;
@@ -148,12 +148,12 @@ export class GameScene extends Phaser.Scene {
         this.bombs = this.physics.add.group();
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 11,
-            setXY: { x: 12, y: 0, stepX: 70 }
+            repeat: 7,
+            setXY: { x: 32, y: 0, stepX: 64 }
         });
         
         this.stars.children.iterate(function (child: Phaser.Physics.Arcade.Sprite) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+            child.setBounceY(Phaser.Math.FloatBetween(0.5, 0.8));
         });
     
         this.physics.add.collider(this.players, world);
@@ -185,11 +185,11 @@ export class GameScene extends Phaser.Scene {
                     }
                     else {
                         player.setVelocityX(0);
-                        if (player.body.touching.down) {
+                        if (player.body.blocked.down) {
                             player.anims.play(player.getData('key') + '_idle', true);
                         }
                     }
-                    if (player.getData('up').isDown && player.body.touching.down){
+                    if (player.getData('up').isDown && player.body.blocked.down){
                         player.anims.play(player.getData('key') + '_jump', true);
                         player.setVelocityY(-this.jumpspeed);
                         this.time.delayedCall(200, function(){

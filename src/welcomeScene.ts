@@ -12,11 +12,11 @@ export class WelcomeScene extends Phaser.Scene {
 
   create(): void {
     let titleText: string = "Bomb Dodger";
-    this.title = this.add.text(150, 200, titleText, { font: '100px Arial Bold', fill: '#FBFBAC' });
+    this.title = this.add.text(100, 100, titleText, { font: '42px Arial Bold', fill: '#FBFBAC' });
     let hint1Text: string = "Press 1 for Single Player";
-    this.hint1 = this.add.text(300, 350, hint1Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
+    this.hint1 = this.add.text(150, 150, hint1Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
     let hint2Text: string = "Press 2 for Multiplayer";
-    this.hint2 = this.add.text(300, 390, hint2Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
+    this.hint2 = this.add.text(150, 180, hint2Text, { font: '24px Arial Bold', fill: '#FBFBAC' });
     this.input.keyboard.on('keydown-ONE', function () {
       this.scene.start("GameScene", {singleplayer: true});
     }, this);
