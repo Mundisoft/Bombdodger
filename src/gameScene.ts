@@ -42,15 +42,8 @@ export class GameScene extends Phaser.Scene {
         this.load.image('ground', '/assets/platform.png');
         this.load.image('star', '/assets/star.png');
         this.load.image('bomb', '/assets/bomb.png');
-        this.load.spritesheet('dude', '/assets/dude.png', {
-            frameWidth: 32, frameHeight: 48
-        });
-        this.load.spritesheet('dudeTwo', '/assets/dude2.png', {
-            frameWidth: 32, frameHeight: 48
-        });
-
-
         this.load.image('Owl', '/assets/Owlet_Monster.png');
+        this.load.image("Dude", '/assets/Dude_Monster.png');
 
         this.load.spritesheet('Owl_idle', '/assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
@@ -62,6 +55,19 @@ export class GameScene extends Phaser.Scene {
             frameWidth: 32, frameHeight: 32
         });
         this.load.spritesheet('Owl_die', '/assets/Owlet_Monster_Death_8.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+
+        this.load.spritesheet('Dude_idle', '/assets/Dude_Monster_Idle_4.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Dude_run', '/assets/Dude_Monster_Run_6.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Dude_jump', '/assets/Dude_Monster_Jump_8.png', {
+            frameWidth: 32, frameHeight: 32
+        });
+        this.load.spritesheet('Dude_die', '/assets/Dude_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
     }
@@ -92,8 +98,9 @@ export class GameScene extends Phaser.Scene {
         this.setAnims(playerOne);
 
         if (!this.singleplayer) {
-            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(700,450,'dudeTwo').setData({
+            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(700,450,'Dude').setData({
                 name: 'Player 2',
+                key: 'Dude',
                 score: 0,
                 scoreText: this.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
                 dead: false,
@@ -146,31 +153,34 @@ export class GameScene extends Phaser.Scene {
     update():void {   
         if (this.gameOver !== true) {
             this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite){
-                if (player.getData('left').isDown) {
-                    player.setVelocityX(-this.movespeed);
-                    player.anims.play(player.getData('key') + '_left', true);
-                    player.setFlipX(true);
-                }
-                else if (player.getData('right').isDown) {
-                    player.setVelocityX(this.movespeed);
-                    player.anims.play(player.getData('key') + '_right', true);
-                    player.setFlipX(false);
-                }
-                else {
-                    player.setVelocityX(0);
-                    if (player.body.touching.down) {
-                        player.anims.play(player.getData('key') + '_idle', true);
+
+                if (!player.getData('dead')) {
+                    if (player.getData('left').isDown) {
+                        player.setVelocityX(-this.movespeed);
+                        player.anims.play(player.getData('key') + '_left', true);
+                        player.setFlipX(true);
                     }
-                }
-                if (player.getData('up').isDown && player.body.touching.down){
-                    player.anims.play(player.getData('key') + '_jump', true);
-                    player.setVelocityY(-this.jumpspeed);
-                    this.time.delayedCall(200, function(){
-                        player.data.values.doublejumps++;
-                    });
-                } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
-                    player.setVelocityY(-this.jumpspeed);
-                    player.data.values.doublejumps--;
+                    else if (player.getData('right').isDown) {
+                        player.setVelocityX(this.movespeed);
+                        player.anims.play(player.getData('key') + '_right', true);
+                        player.setFlipX(false);
+                    }
+                    else {
+                        player.setVelocityX(0);
+                        if (player.body.touching.down) {
+                            player.anims.play(player.getData('key') + '_idle', true);
+                        }
+                    }
+                    if (player.getData('up').isDown && player.body.touching.down){
+                        player.anims.play(player.getData('key') + '_jump', true);
+                        player.setVelocityY(-this.jumpspeed);
+                        this.time.delayedCall(200, function(){
+                            player.data.values.doublejumps++;
+                        });
+                    } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
+                        player.setVelocityY(-this.jumpspeed);
+                        player.data.values.doublejumps--;
+                    }
                 }
             },this);   
         }
@@ -192,9 +202,8 @@ export class GameScene extends Phaser.Scene {
 
         } else if (!player.getData('dead')){
             this.playersleft --;
-            player.setTint(0xff0000);
-            player.anims.play('turn');
-            player.disableBody();
+            player.data.values.dead = true;
+            player.anims.play(player.getData('key') + '_die');
 
             if (this.playersleft === 0) {
                 if (this.players.getFirst(true).getData('score') > this.players.getLast(true).getData('score')) {
