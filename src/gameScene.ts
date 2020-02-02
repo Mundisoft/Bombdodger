@@ -38,12 +38,17 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload():void {
-        this.load.image('sky', '/assets/sky.png');
-        this.load.image('ground', '/assets/platform.png');
+
+        this.load.image('tiles', '/assets/tileset.png');
+        this.load.image('background', '/assets/back.png');
+        this.load.tilemapTiledJSON('map', '/assets/Map1.json');
+
         this.load.image('star', '/assets/star.png');
         this.load.image('bomb', '/assets/bomb.png');
         this.load.image('Owl', '/assets/Owlet_Monster.png');
         this.load.image("Dude", '/assets/Dude_Monster.png');
+
+        this.load.image("tiles", '/assets/tileset.png');
 
         this.load.spritesheet('Owl_idle', '/assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
@@ -57,7 +62,6 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('Owl_die', '/assets/Owlet_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-
         this.load.spritesheet('Dude_idle', '/assets/Dude_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
         });
@@ -70,15 +74,26 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('Dude_die', '/assets/Dude_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
+
+
+
     }
 
     create():void {
-        this.add.image(400, 300, 'sky');
-        this.platforms = this.physics.add.staticGroup();
-        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 400, 'ground');
-        this.platforms.create(50, 250, 'ground');
-        this.platforms.create(750, 220, 'ground');
+
+        this.add.image(192, 120, 'background');
+        const map = this.make.tilemap({key: 'map'});
+        const tileset = map.addTilesetImage('tileset','tiles');       
+        const world = map.createStaticLayer('Tiles', tileset, 0, 0);
+        
+        world.setCollisionByProperty({collision: true});
+
+        // const debugGraphics = this.add.graphics().setAlpha(0.75);
+        // world.renderDebug(debugGraphics, {
+        //     tileColor: null, // Color of non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        // });
 
         this.players = this.physics.add.group();
 
@@ -138,12 +153,12 @@ export class GameScene extends Phaser.Scene {
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
         });
     
-        this.physics.add.collider(this.players, this.platforms);
+        this.physics.add.collider(this.players, world);
         // remove player collisions until bug resolved
         // bug - falls through terrain when jumped on
         //this.physics.add.collider(this.players, this.players);
-        this.physics.add.collider(this.stars, this.platforms);
-        this.physics.add.collider(this.bombs, this.platforms);
+        this.physics.add.collider(this.stars, world);
+        this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar , null, this);
 
