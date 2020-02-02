@@ -218,7 +218,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private hitBomb(player: Phaser.Physics.Arcade.Sprite):void {
-        if (this.singleplayer) {
+        if (this.singleplayer && !this.gameOver == true) {
             player.anims.play(player.getData('key') + '_die');
 
             // this is really hacky and I hate it
@@ -232,7 +232,7 @@ export class GameScene extends Phaser.Scene {
                 this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
             },[],this);
 
-        } else if (!player.getData('dead')){
+        } else if (!this.singleplayer && !player.getData('dead')){
             this.playersleft --;
             player.data.values.dead = true;
             player.anims.play(player.getData('key') + '_die');
