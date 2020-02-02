@@ -1,4 +1,5 @@
 import 'phaser';
+import { AlignGrid } from './AlignGrid';
 export class GameScene extends Phaser.Scene {
     best: number;
     bestScoreText: Phaser.GameObjects.Text;
@@ -17,6 +18,9 @@ export class GameScene extends Phaser.Scene {
     doublejumps: number;
 
     playersleft: number;
+
+    gridConfig: {scene: GameScene, cols: number, rows: number}
+    agrid: AlignGrid;
  
     SPACE: Phaser.Input.Keyboard.Key;
 
@@ -26,7 +30,6 @@ export class GameScene extends Phaser.Scene {
             key: 'GameScene'
         });
     }
-
     init(params: any): void {
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
@@ -35,6 +38,11 @@ export class GameScene extends Phaser.Scene {
         this.playersleft = 1;
         //number of times a player can jump without touching down
         this.doublejumps = 1;
+        this.gridConfig = {
+            'scene': this,
+            'cols': 32,
+            'rows': 20,
+        }
     }
 
     preload():void {
@@ -80,24 +88,17 @@ export class GameScene extends Phaser.Scene {
     }
 
     create():void {
-
-        this.add.image(192, 120, 'background');
+        this.add.image(256, 160, 'background').setScale(1.35);
         const map = this.make.tilemap({key: 'map'});
         const tileset = map.addTilesetImage('tileset','tiles');       
         const world = map.createStaticLayer('Tiles', tileset, 0, 0);
-        
         world.setCollisionByProperty({collision: true});
-
-        // const debugGraphics = this.add.graphics().setAlpha(0.75);
-        // world.renderDebug(debugGraphics, {
-        //     tileColor: null, // Color of non-colliding tiles
-        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        // });
-
         this.players = this.physics.add.group();
 
-        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(100,450,'Owl').setData({
+        this.agrid = new AlignGrid(this.gridConfig);
+        //this.agrid.show();
+
+        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(0,0,'Owl').setData({
             name: 'Player 1',
             key: 'Owl',
             score: 0,
@@ -109,11 +110,12 @@ export class GameScene extends Phaser.Scene {
             right: this.input.keyboard.addKey('d'),
             doublejumps: this.doublejumps
         });
+        this.agrid.placeAt(4, 13, playerOne);
 
         this.setAnims(playerOne);
 
         if (!this.singleplayer) {
-            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(700,450,'Dude').setData({
+            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(0,0,'Dude').setData({
                 name: 'Player 2',
                 key: 'Dude',
                 score: 0,
@@ -125,6 +127,7 @@ export class GameScene extends Phaser.Scene {
                 right: this.input.keyboard.addKey('right'),
                 doublejumps: this.doublejumps
             });
+            this.agrid.placeAt(27,13,playerTwo);
             this.setAnims(playerTwo);
             this.playersleft ++;
         }

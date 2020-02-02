@@ -4,8 +4,8 @@ import { WelcomeScene } from './welcomeScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     title: 'BombDodge',
-    width: 384,
-    height: 240,
+    width: 512,
+    height: 320,
     parent: 'game',
     pixelArt: true,
     zoom: 3,
