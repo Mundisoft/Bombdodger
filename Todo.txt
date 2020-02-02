@@ -9,8 +9,6 @@ Different enemy types
 
 Different Levels
 
-Better Collisions
-
 Event driven as opposed to listener
 
 Lower gravity for things that aren't the player?

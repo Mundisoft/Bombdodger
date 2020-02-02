@@ -102,7 +102,7 @@ export class GameScene extends Phaser.Scene {
             name: 'Player 1',
             key: 'Owl',
             score: 0,
-            scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
+            scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '16px', fill: '#000'}),
             dead: false,
             up: this.input.keyboard.addKey('w'),
             down: this.input.keyboard.addKey('s'),
@@ -113,13 +113,15 @@ export class GameScene extends Phaser.Scene {
         this.agrid.placeAt(4, 13, playerOne);
 
         this.setAnims(playerOne);
+        playerOne.body.setOffset(9,7);
+        playerOne.body.setSize(13,25,false);
 
         if (!this.singleplayer) {
             const playerTwo: Phaser.Physics.Arcade.Sprite = this.players.create(0,0,'Dude').setData({
                 name: 'Player 2',
                 key: 'Dude',
                 score: 0,
-                scoreText: this.add.text(600, 16, 'Score: 0', { fontSize: '32px', fill: '#000'}),
+                scoreText: this.add.text(400, 16, 'Score: 0', { fontSize: '16px', fill: '#000'}),
                 dead: false,
                 up: this.input.keyboard.addKey('up'),
                 down: this.input.keyboard.addKey('down'),
@@ -129,6 +131,8 @@ export class GameScene extends Phaser.Scene {
             });
             this.agrid.placeAt(27,13,playerTwo);
             this.setAnims(playerTwo);
+            playerTwo.body.setOffset(9,7);
+            playerTwo.body.setSize(13,25,false);
             this.playersleft ++;
         }
         else {
@@ -137,7 +141,7 @@ export class GameScene extends Phaser.Scene {
                 this.firstGame = true;
             }
             else {
-                this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '32px', fill: '#000'});
+                this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '16px', fill: '#000'});
                 this.firstGame = false;
             }
         }
@@ -175,12 +179,16 @@ export class GameScene extends Phaser.Scene {
                 if (!player.getData('dead')) {
                     if (player.getData('left').isDown) {
                         player.setVelocityX(-this.movespeed);
-                        player.anims.play(player.getData('key') + '_left', true);
+                        if (player.body.blocked.down) {
+                            player.anims.play(player.getData('key') + '_left', true);
+                        }
                         player.setFlipX(true);
                     }
                     else if (player.getData('right').isDown) {
                         player.setVelocityX(this.movespeed);
-                        player.anims.play(player.getData('key') + '_right', true);
+                        if (player.body.blocked.down) {
+                            player.anims.play(player.getData('key') + '_right', true);
+                        }
                         player.setFlipX(false);
                     }
                     else {
@@ -197,6 +205,7 @@ export class GameScene extends Phaser.Scene {
                         });
                     } else if (player.getData('up').isDown && player.getData('doublejumps') > 1) {
                         player.setVelocityY(-this.jumpspeed);
+                        player.anims.play(player.getData('key') + '_jump', false);
                         player.data.values.doublejumps--;
                     }
                 }
@@ -211,6 +220,11 @@ export class GameScene extends Phaser.Scene {
     private hitBomb(player: Phaser.Physics.Arcade.Sprite):void {
         if (this.singleplayer) {
             player.anims.play(player.getData('key') + '_die');
+
+            // this is really hacky and I hate it
+            this.time.delayedCall(500, function (){
+                player.disableBody(true,true);
+            });
 
             this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
             this.gameOver = true;
@@ -235,11 +249,10 @@ export class GameScene extends Phaser.Scene {
                     this.gameOver = true;
                     this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
                 },[],this);
-            } else {
-                this.time.delayedCall(2000, function (){
-                    player.setVisible(false);
-                });
-            }
+            } 
+            this.time.delayedCall(500, function (){
+                player.disableBody(true,true);
+            });
         }
     }
 
@@ -255,7 +268,7 @@ export class GameScene extends Phaser.Scene {
                 if (this.firstGame != true) {
                     this.bestScoreText.setText('Best : ' + this.best);
                     this.bestScoreText.setColor('Green');
-                    this.bestScoreText.setFontSize(40);
+                    this.bestScoreText.setFontSize(24);
                 }
             }
         }
@@ -292,7 +305,7 @@ export class GameScene extends Phaser.Scene {
         this.anims.create({
             key: player.getData('key') + '_jump',
             frames: this.anims.generateFrameNumbers(player.texture.key + '_jump', { start: 0, end: 7}),
-            frameRate: 20,
+            frameRate: 6,
         });
 
         this.anims.create({
