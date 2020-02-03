@@ -1,9 +1,5 @@
 import 'phaser';
 import { AlignGrid } from './AlignGrid';
-
-
-import * as Back from '../assets/back.png';
-
 export class GameScene extends Phaser.Scene {
     best: number;
     bestScoreText: Phaser.GameObjects.Text;
@@ -51,39 +47,39 @@ export class GameScene extends Phaser.Scene {
 
     preload():void {
 
-        this.load.image('tiles', '/assets/tileset.png');
-        this.load.image('background', Back);
-        this.load.tilemapTiledJSON('map', '/assets/Map1.json');
+        this.load.image('tiles', '/dist/assets/tileset.png');
+        this.load.image('background', '/dist/assets/back.png');
+        this.load.tilemapTiledJSON('map', '/dist/assets/Map1.json');
 
-        this.load.image('star', '/assets/star.png');
-        this.load.image('bomb', '/assets/bomb.png');
-        this.load.image('Owl', '/assets/Owlet_Monster.png');
-        this.load.image("Dude", '/assets/Dude_Monster.png');
+        this.load.image('star', '/dist/assets/star.png');
+        this.load.image('bomb', '/dist/assets/bomb.png');
+        this.load.image('Owl', '/dist/assets/Owlet_Monster.png');
+        this.load.image("Dude", '/dist/assets/Dude_Monster.png');
 
-        this.load.image("tiles", '/assets/tileset.png');
+        this.load.image("tiles", '/dist/assets/tileset.png');
 
-        this.load.spritesheet('Owl_idle', '/assets/Owlet_Monster_Idle_4.png', {
+        this.load.spritesheet('Owl_idle', '/dist/assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_run', '/assets/Owlet_Monster_Run_6.png', {
+        this.load.spritesheet('Owl_run', '/dist/assets/Owlet_Monster_Run_6.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_jump', '/assets/Owlet_Monster_Jump_8.png', {
+        this.load.spritesheet('Owl_jump', '/dist/assets/Owlet_Monster_Jump_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_die', '/assets/Owlet_Monster_Death_8.png', {
+        this.load.spritesheet('Owl_die', '/dist/assets/Owlet_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_idle', '/assets/Dude_Monster_Idle_4.png', {
+        this.load.spritesheet('Dude_idle', '/dist/assets/Dude_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_run', '/assets/Dude_Monster_Run_6.png', {
+        this.load.spritesheet('Dude_run', '/dist/assets/Dude_Monster_Run_6.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_jump', '/assets/Dude_Monster_Jump_8.png', {
+        this.load.spritesheet('Dude_jump', '/dist/assets/Dude_Monster_Jump_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_die', '/assets/Dude_Monster_Death_8.png', {
+        this.load.spritesheet('Dude_die', '/dist/assets/Dude_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
 

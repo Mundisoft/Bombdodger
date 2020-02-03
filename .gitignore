@@ -1,5 +1,9 @@
 node_modules/
-dist/
 jsconfig.json
 assets/tileset.tsx
 assets/untitled.tmx
+temp assets/platform.png
+temp assets/sky.png
+temp assets/tileset.tsx
+temp assets/untitled.tmx
+dist/app.js

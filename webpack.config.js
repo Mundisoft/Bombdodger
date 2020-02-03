@@ -7,12 +7,7 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
-        use: 'file-loader',
-        exclude: /node_modules/
-      },
+      }
     ]
   },
   resolve: {
@@ -22,5 +17,5 @@ module.exports = {
     filename: 'app.js',
     path: path.resolve(__dirname, 'dist')
   },
-  // mode: 'development'
+  mode: 'development'
 };
