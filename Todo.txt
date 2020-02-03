@@ -23,7 +23,13 @@ Use proper grid scaling for all assets (bombs spawn correctly on opposite side)
 
 Pretty up the welcome screens and scores - better UI
 
+Remove bestscore and replace it with a text effect on score
 
+
+Tween score to middle of screen at gameover
+
+
+Multiplayer - orb bounces between player scores depending on who is winning
 
 
 1 Bullet reload game

@@ -2,7 +2,7 @@ import 'phaser';
 import { AlignGrid } from './AlignGrid';
 export class GameScene extends Phaser.Scene {
     best: number;
-    bestScoreText: Phaser.GameObjects.Text;
+    bestScoreText: Phaser.GameObjects.BitmapText;
     stars: Phaser.Physics.Arcade.Group;
     bombs: Phaser.Physics.Arcade.Group;
     platforms: Phaser.Physics.Arcade.StaticGroup;
@@ -11,19 +11,14 @@ export class GameScene extends Phaser.Scene {
     gameOverText: Phaser.GameObjects.Text;
     gameOverHintText: Phaser.GameObjects.Text;
     players: Phaser.Physics.Arcade.Group;
-
     singleplayer: boolean;
     movespeed: number;
     jumpspeed: number;
     doublejumps: number;
-
     playersleft: number;
-
     gridConfig: {scene: GameScene, cols: number, rows: number}
     agrid: AlignGrid;
- 
     SPACE: Phaser.Input.Keyboard.Key;
-
 
     constructor(){
         super({
@@ -46,16 +41,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload():void {
-
+        this.load.bitmapFont('scorefont', './assets/fonts/font.png', './assets/fonts/font.fnt');
         this.load.image('tiles', './assets/tileset.png');
         this.load.image('background', './assets/back.png');
         this.load.tilemapTiledJSON('map', './assets/Map1.json');
-
         this.load.image('star', './assets/star.png');
         this.load.image('bomb', './assets/bomb.png');
         this.load.image('Owl', './assets/Owlet_Monster.png');
         this.load.image("Dude", './assets/Dude_Monster.png');
-
         this.load.image("tiles", './assets/tileset.png');
 
         this.load.spritesheet('Owl_idle', './assets/Owlet_Monster_Idle_4.png', {
@@ -82,9 +75,6 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('Dude_die', './assets/Dude_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-
-
-
     }
 
     create():void {
@@ -102,7 +92,7 @@ export class GameScene extends Phaser.Scene {
             name: 'Player 1',
             key: 'Owl',
             score: 0,
-            scoreText: this.add.text(16, 16, 'Score: 0', { fontSize: '16px', fill: '#000'}),
+            scoreText: this.add.bitmapText(0,0, 'scorefont', 'Score: 0', 32).setOrigin(0,0),
             dead: false,
             up: this.input.keyboard.addKey('w'),
             down: this.input.keyboard.addKey('s'),
@@ -111,6 +101,7 @@ export class GameScene extends Phaser.Scene {
             doublejumps: this.doublejumps
         });
         this.agrid.placeAt(4, 13, playerOne);
+        this.agrid.placeAt(0,0,playerOne.getData('scoreText'));
 
         this.setAnims(playerOne);
         playerOne.body.setOffset(9,7);
@@ -121,7 +112,7 @@ export class GameScene extends Phaser.Scene {
                 name: 'Player 2',
                 key: 'Dude',
                 score: 0,
-                scoreText: this.add.text(400, 16, 'Score: 0', { fontSize: '16px', fill: '#000'}),
+                scoreText: this.add.bitmapText(0,0, 'scorefont', 'Score: 0', 32).setOrigin(1,0),
                 dead: false,
                 up: this.input.keyboard.addKey('up'),
                 down: this.input.keyboard.addKey('down'),
@@ -130,6 +121,8 @@ export class GameScene extends Phaser.Scene {
                 doublejumps: this.doublejumps
             });
             this.agrid.placeAt(27,13,playerTwo);
+            this.agrid.placeAt(31,0,playerTwo.getData('scoreText'));
+
             this.setAnims(playerTwo);
             playerTwo.body.setOffset(9,7);
             playerTwo.body.setSize(13,25,false);
@@ -141,7 +134,8 @@ export class GameScene extends Phaser.Scene {
                 this.firstGame = true;
             }
             else {
-                this.bestScoreText = this.add.text(16, 48, 'Best : ' + this.best, { fontSize: '16px', fill: '#000'});
+                this.bestScoreText = this.add.bitmapText(0,0, 'scorefont', 'Best: ' + this.best, 32);
+                this.agrid.placeAt(0,2,this.bestScoreText);
                 this.firstGame = false;
             }
         }
@@ -163,7 +157,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.players, world);
         // remove player collisions until bug resolved
         // bug - falls through terrain when jumped on
-        //this.physics.add.collider(this.players, this.players);
+        // this.physics.add.collider(this.players, this.players);
         this.physics.add.collider(this.stars, world);
         this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
@@ -272,8 +266,8 @@ export class GameScene extends Phaser.Scene {
                 this.best = player.getData('score');
                 if (this.firstGame != true) {
                     this.bestScoreText.setText('Best : ' + this.best);
-                    this.bestScoreText.setColor('Green');
-                    this.bestScoreText.setFontSize(24);
+                   // this.bestScoreText.setColor('Green');
+                    this.bestScoreText.setFontSize(36);
                 }
             }
         }
