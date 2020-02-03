@@ -47,39 +47,39 @@ export class GameScene extends Phaser.Scene {
 
     preload():void {
 
-        this.load.image('tiles', '/dist/assets/tileset.png');
-        this.load.image('background', '/dist/assets/back.png');
-        this.load.tilemapTiledJSON('map', '/dist/assets/Map1.json');
+        this.load.image('tiles', './assets/tileset.png');
+        this.load.image('background', './assets/back.png');
+        this.load.tilemapTiledJSON('map', './assets/Map1.json');
 
-        this.load.image('star', '/dist/assets/star.png');
-        this.load.image('bomb', '/dist/assets/bomb.png');
-        this.load.image('Owl', '/dist/assets/Owlet_Monster.png');
-        this.load.image("Dude", '/dist/assets/Dude_Monster.png');
+        this.load.image('star', './assets/star.png');
+        this.load.image('bomb', './assets/bomb.png');
+        this.load.image('Owl', './assets/Owlet_Monster.png');
+        this.load.image("Dude", './assets/Dude_Monster.png');
 
-        this.load.image("tiles", '/dist/assets/tileset.png');
+        this.load.image("tiles", './assets/tileset.png');
 
-        this.load.spritesheet('Owl_idle', '/dist/assets/Owlet_Monster_Idle_4.png', {
+        this.load.spritesheet('Owl_idle', './assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_run', '/dist/assets/Owlet_Monster_Run_6.png', {
+        this.load.spritesheet('Owl_run', './assets/Owlet_Monster_Run_6.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_jump', '/dist/assets/Owlet_Monster_Jump_8.png', {
+        this.load.spritesheet('Owl_jump', './assets/Owlet_Monster_Jump_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Owl_die', '/dist/assets/Owlet_Monster_Death_8.png', {
+        this.load.spritesheet('Owl_die', './assets/Owlet_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_idle', '/dist/assets/Dude_Monster_Idle_4.png', {
+        this.load.spritesheet('Dude_idle', './assets/Dude_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_run', '/dist/assets/Dude_Monster_Run_6.png', {
+        this.load.spritesheet('Dude_run', './assets/Dude_Monster_Run_6.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_jump', '/dist/assets/Dude_Monster_Jump_8.png', {
+        this.load.spritesheet('Dude_jump', './assets/Dude_Monster_Jump_8.png', {
             frameWidth: 32, frameHeight: 32
         });
-        this.load.spritesheet('Dude_die', '/dist/assets/Dude_Monster_Death_8.png', {
+        this.load.spritesheet('Dude_die', './assets/Dude_Monster_Death_8.png', {
             frameWidth: 32, frameHeight: 32
         });
 
@@ -96,7 +96,7 @@ export class GameScene extends Phaser.Scene {
         this.players = this.physics.add.group();
 
         this.agrid = new AlignGrid(this.gridConfig);
-        //this.agrid.show();
+        //this.agrid.showNumbers();
 
         const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(0,0,'Owl').setData({
             name: 'Player 1',
@@ -226,10 +226,12 @@ export class GameScene extends Phaser.Scene {
                 player.disableBody(true,true);
             });
 
-            this.gameOverText = this.add.text(400, 300, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+            this.gameOverText = this.add.text(0, 0, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5, 0.5);
+            this.agrid.placeAt(16,3,this.gameOverText);
             this.gameOver = true;
             this.time.delayedCall(1000, function (){
-                this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+                this.gameOverHintText = this.add.text(0, 0, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5, 0.5);
+                this.agrid.placeAt(16,14,this.gameOverHintText);
             },[],this);
 
         } else if (!this.singleplayer && !player.getData('dead')){
@@ -238,20 +240,23 @@ export class GameScene extends Phaser.Scene {
             player.anims.play(player.getData('key') + '_die');
 
             if (this.playersleft === 0) {
+
                 if (this.players.getFirst(true).getData('score') > this.players.getLast(true).getData('score')) {
-                    this.gameOverText = this.add.text(400, 300, 'PLAYER 1 WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.text(0, 0, 'PLAYER 1 WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
                 } else if (this.players.getFirst(true).getData('score') < this.players.getLast(true).getData('score')) {
-                    this.gameOverText = this.add.text(400, 300, 'PLAYER 2 WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.text(0, 0, 'PLAYER 2 WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
                 } else {
-                    this.gameOverText = this.add.text(400, 300,  player.getData('name') + ' WINS!', { fontSize: '64px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.text(0, 0,  player.getData('name') + ' WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
                 }
+                this.agrid.placeAt(16,3,this.gameOverText);
                 this.time.delayedCall(1000, function (){
                     this.gameOver = true;
-                    this.gameOverHintText = this.add.text(400, 345, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverHintText = this.add.text(0, 0, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+                    this.agrid.placeAt(16, 14, this.gameOverHintText);
                 },[],this);
             } 
             this.time.delayedCall(500, function (){
-                player.disableBody(true,true);
+                player.disableBody(false,true);
             });
         }
     }

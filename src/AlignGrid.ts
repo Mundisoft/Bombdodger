@@ -27,17 +27,25 @@ export class AlignGrid {
     }
 
     public showNumbers(a = 1) {
-        // this.show(a);
+        this.show(a);
         let n = 0;
+
         for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                let numText = this.scene.add.text(0, 0, n.toString(), {
-                    color: 'red'
-                });
-                numText.setOrigin(0.5, 0.5);
-                this.placeAt(j, i, numText);
-                n++;
-            }
+            let numText = this.scene.add.text(0, 0,i.toString(), {
+                color: 'red',
+                fontSize: '8px'
+            });
+            numText.setOrigin(0.5, 0.5);
+            this.placeAt(0, i, numText);
+        }
+
+        for (let j = 0; j < this.cols; j++) {
+            let numText = this.scene.add.text(0, 0, j.toString(), {
+                color: 'red',
+                fontSize: '8px'
+            });
+            numText.setOrigin(0.5, 0.5);
+            this.placeAt(j, 0, numText);
         }
     }
 
