@@ -3,11 +3,11 @@
   "homepage": "https://Mundisoft.github.io/Bombdodger",
   "version": "1.0.0",
   "description": "",
-  "main": "index.html",
-  "dependencies": {
-    "gh-pages": "^2.2.0"
-  },
+  "private": true,
+  "dependencies": {},
   "devDependencies": {
+    "file-loader": "^5.0.2",
+    "gh-pages": "^2.2.0",
     "live-server": "^1.2.1",
     "phaser": "^3.22.0",
     "ts-loader": "^6.2.1",
