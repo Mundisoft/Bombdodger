@@ -135,7 +135,7 @@ export class GameScene extends Phaser.Scene {
             }
             else {
                 this.bestScoreText = this.add.bitmapText(0,0, 'scorefont', 'Best: ' + this.best, 32);
-                this.agrid.placeAt(0,2,this.bestScoreText);
+                this.agrid.placeAt(0,1.5,this.bestScoreText);
                 this.firstGame = false;
             }
         }
