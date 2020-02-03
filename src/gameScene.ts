@@ -1,5 +1,9 @@
 import 'phaser';
 import { AlignGrid } from './AlignGrid';
+
+
+import * as Back from '../assets/back.png';
+
 export class GameScene extends Phaser.Scene {
     best: number;
     bestScoreText: Phaser.GameObjects.Text;
@@ -48,7 +52,7 @@ export class GameScene extends Phaser.Scene {
     preload():void {
 
         this.load.image('tiles', '/assets/tileset.png');
-        this.load.image('background', '/assets/back.png');
+        this.load.image('background', Back);
         this.load.tilemapTiledJSON('map', '/assets/Map1.json');
 
         this.load.image('star', '/assets/star.png');

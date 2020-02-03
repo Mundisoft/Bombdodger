@@ -1,7 +1,6 @@
 const path = require('path');
 module.exports = {
   entry: './src/game.ts',
-  devtool: 'inline-source-map',
   module: {
     rules: [
       {
@@ -11,7 +10,8 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use: 'file-loader'
+        use: 'file-loader',
+        exclude: /node_modules/
       },
     ]
   },
@@ -22,5 +22,5 @@ module.exports = {
     filename: 'app.js',
     path: path.resolve(__dirname, 'dist')
   },
-  mode: 'development'
+  // mode: 'development'
 };
