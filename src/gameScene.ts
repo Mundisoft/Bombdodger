@@ -34,7 +34,7 @@ export class GameScene extends Phaser.Scene {
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
         this.movespeed = 150;
-        this.jumpspeed = 300;
+        this.jumpspeed = 320;
         this.playersleft = 1;
         //number of times a player can jump without touching down
         this.doublejumps = 1;

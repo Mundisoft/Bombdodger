@@ -15,6 +15,17 @@ Lower gravity for things that aren't the player?
 
 Put asset loading into JSON
 
-Fix death animation bug
+Fix death animation bug --- hack fixed right now
 
-Use proper grid scaling for all assets
+Bring back star jumping?
+
+Use proper grid scaling for all assets (bombs spawn correctly on opposite side)
+
+Pretty up the welcome screens and scores - better UI
+
+
+
+
+1 Bullet reload game
+
+Jump on balls to destroy
