@@ -1,9 +1,12 @@
 {
-  "name": "bombdodge",
+  "name": "bombdodger",
+  "homepage": "https://Mundisoft.github.io/Bombdodger",
   "version": "1.0.0",
   "description": "",
   "main": "index.html",
-  "dependencies": {},
+  "dependencies": {
+    "gh-pages": "^2.2.0"
+  },
   "devDependencies": {
     "live-server": "^1.2.1",
     "phaser": "^3.22.0",
@@ -13,6 +16,8 @@
     "webpack-cli": "^3.3.10"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "build": "webpack",
     "start": "start webpack --watch && start live-server --port=8085"
   },
