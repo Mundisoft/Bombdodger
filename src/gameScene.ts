@@ -19,6 +19,8 @@ export class GameScene extends Phaser.Scene {
     gridConfig: {scene: GameScene, cols: number, rows: number}
     agrid: AlignGrid;
     SPACE: Phaser.Input.Keyboard.Key;
+    gameWidth: number;
+    gameHeight: any;
 
     constructor(){
         super({
@@ -26,6 +28,8 @@ export class GameScene extends Phaser.Scene {
         });
     }
     init(params: any): void {
+        this.gameWidth = Number(this.game.config.width);
+        this.gameHeight = Number(this.game.config.height);
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
         this.movespeed = 150;
@@ -90,6 +94,17 @@ export class GameScene extends Phaser.Scene {
         this.agrid = new AlignGrid(this.gridConfig);
         //this.agrid.showNumbers();
 
+        if (this.firstGame == null) {
+            this.firstGame = true;
+            this.best = 0;
+        } else {
+            this.firstGame = false;
+            if (this.singleplayer) {
+                this.bestScoreText = this.add.bitmapText(0,0, 'scorefont', 'Best: ' + this.best, 32);
+                this.agrid.placeAt(0,1.5,this.bestScoreText);
+            }
+        }
+
         const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(0,0,'Owl').setData({
             name: 'Player 1',
             key: 'Owl',
@@ -101,12 +116,14 @@ export class GameScene extends Phaser.Scene {
             left: this.input.keyboard.addKey('a'),
             right: this.input.keyboard.addKey('d'),
             doublejumps: this.doublejumps,
-            controls: this.add.image(0,0,'WSAD').setOrigin(0.2,1)
+            controls: this.add.image(-20,-20,'WSAD').setOrigin(0.2,1)
         });
         this.agrid.placeAt(4, 13, playerOne);
         this.agrid.placeAt(0,0,playerOne.getData('scoreText'));
-        this.agrid.placeAt(5,14, playerOne.getData('controls'));
 
+        if (this.firstGame){
+            this.agrid.placeAt(5,14, playerOne.getData('controls'));
+        }
 
         this.setAnims(playerOne);
         playerOne.body.setOffset(9,7);
@@ -134,16 +151,9 @@ export class GameScene extends Phaser.Scene {
             playerTwo.body.setOffset(9,7);
             playerTwo.body.setSize(13,25,false);
             this.playersleft ++;
-        }
-        else {
-            if (this.best == null) {
-                this.best = 0;
-                this.firstGame = true;
-            }
-            else {
-                this.bestScoreText = this.add.bitmapText(0,0, 'scorefont', 'Best: ' + this.best, 32);
-                this.agrid.placeAt(0,1.5,this.bestScoreText);
-                this.firstGame = false;
+
+            if (this.firstGame){
+                this.agrid.placeAt(5,14, playerTwo.getData('controls'));
             }
         }
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
@@ -285,13 +295,12 @@ export class GameScene extends Phaser.Scene {
             this.stars.children.iterate(function(child:Phaser.Physics.Arcade.Sprite){
                 child.enableBody(true, child.x, 0, true, true);
             });
-    
-            let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0,400);
+            let x = (player.x < this.gameWidth / 2) ? Phaser.Math.Between(this.gameWidth/2, this.gameWidth) : Phaser.Math.Between(0,this.gameWidth/2);
     
             let bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
             bomb.setBounce(1,1);
             bomb.setCollideWorldBounds(true);
-            bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+            bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
         }
     }
 
