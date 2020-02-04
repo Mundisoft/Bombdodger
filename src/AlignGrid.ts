@@ -49,7 +49,7 @@ export class AlignGrid {
         }
     }
 
-    public placeAt(xx: number, yy: number, obj: Phaser.GameObjects.Text | Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.BitmapText){
+    public placeAt(xx: number, yy: number, obj: Phaser.GameObjects.Text | Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.BitmapText | Phaser.GameObjects.Image){
         var x2 = this.cw * xx + this.cw / 2;
         var y2 = this.ch * yy + this.ch / 2;
         obj.x = x2;

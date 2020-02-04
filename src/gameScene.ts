@@ -50,6 +50,8 @@ export class GameScene extends Phaser.Scene {
         this.load.image('Owl', './assets/Owlet_Monster.png');
         this.load.image("Dude", './assets/Dude_Monster.png');
         this.load.image("tiles", './assets/tileset.png');
+        this.load.image('WSAD', './assets/WSADBubble.png');
+        this.load.image('arrows', './assets/ArrowsBubble.png');
 
         this.load.spritesheet('Owl_idle', './assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32, frameHeight: 32
@@ -98,10 +100,13 @@ export class GameScene extends Phaser.Scene {
             down: this.input.keyboard.addKey('s'),
             left: this.input.keyboard.addKey('a'),
             right: this.input.keyboard.addKey('d'),
-            doublejumps: this.doublejumps
+            doublejumps: this.doublejumps,
+            controls: this.add.image(0,0,'WSAD').setOrigin(0.2,1)
         });
         this.agrid.placeAt(4, 13, playerOne);
         this.agrid.placeAt(0,0,playerOne.getData('scoreText'));
+        this.agrid.placeAt(5,14, playerOne.getData('controls'));
+
 
         this.setAnims(playerOne);
         playerOne.body.setOffset(9,7);
@@ -118,10 +123,12 @@ export class GameScene extends Phaser.Scene {
                 down: this.input.keyboard.addKey('down'),
                 left: this.input.keyboard.addKey('left'),
                 right: this.input.keyboard.addKey('right'),
-                doublejumps: this.doublejumps
+                doublejumps: this.doublejumps,
+                controls: this.add.image(0,0,'arrows').setOrigin(0.8,1)
             });
             this.agrid.placeAt(27,13,playerTwo);
             this.agrid.placeAt(31,0,playerTwo.getData('scoreText'));
+            this.agrid.placeAt(26,14, playerTwo.getData('controls'));
 
             this.setAnims(playerTwo);
             playerTwo.body.setOffset(9,7);
@@ -173,6 +180,7 @@ export class GameScene extends Phaser.Scene {
                 if (!player.getData('dead')) {
                     if (player.getData('left').isDown) {
                         player.setVelocityX(-this.movespeed);
+                        player.data.values.controls.destroy();
                         if (player.body.blocked.down) {
                             player.anims.play(player.getData('key') + '_left', true);
                         }
@@ -180,6 +188,7 @@ export class GameScene extends Phaser.Scene {
                     }
                     else if (player.getData('right').isDown) {
                         player.setVelocityX(this.movespeed);
+                        player.data.values.controls.destroy();
                         if (player.body.blocked.down) {
                             player.anims.play(player.getData('key') + '_right', true);
                         }
@@ -194,6 +203,7 @@ export class GameScene extends Phaser.Scene {
                     if (player.getData('up').isDown && player.body.blocked.down){
                         player.anims.play(player.getData('key') + '_jump', true);
                         player.setVelocityY(-this.jumpspeed);
+                        player.data.values.controls.destroy();
                         this.time.delayedCall(200, function(){
                             player.data.values.doublejumps++;
                         });
