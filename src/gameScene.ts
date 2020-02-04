@@ -8,8 +8,8 @@ export class GameScene extends Phaser.Scene {
     platforms: Phaser.Physics.Arcade.StaticGroup;
     gameOver:boolean;
     firstGame:boolean;
-    gameOverText: Phaser.GameObjects.Text;
-    gameOverHintText: Phaser.GameObjects.Text;
+    gameOverText: Phaser.GameObjects.BitmapText;
+    gameOverHintText: Phaser.GameObjects.BitmapText;
     players: Phaser.Physics.Arcade.Group;
     singleplayer: boolean;
     movespeed: number;
@@ -46,6 +46,7 @@ export class GameScene extends Phaser.Scene {
 
     preload():void {
         this.load.bitmapFont('scorefont', './assets/fonts/font.png', './assets/fonts/font.fnt');
+        this.load.bitmapFont('yellowfont', './assets/fonts/yellowfont.png', './assets/fonts/yellowfont.fnt');
         this.load.image('tiles', './assets/tileset.png');
         this.load.image('background', './assets/back.png');
         this.load.tilemapTiledJSON('map', './assets/Map1.json');
@@ -91,9 +92,10 @@ export class GameScene extends Phaser.Scene {
         world.setCollisionByProperty({collision: true});
         this.players = this.physics.add.group();
 
+
+
         this.agrid = new AlignGrid(this.gridConfig);
         //this.agrid.showNumbers();
-
         if (this.firstGame == null) {
             this.firstGame = true;
             this.best = 0;
@@ -151,10 +153,6 @@ export class GameScene extends Phaser.Scene {
             playerTwo.body.setOffset(9,7);
             playerTwo.body.setSize(13,25,false);
             this.playersleft ++;
-
-            if (this.firstGame){
-                this.agrid.placeAt(5,14, playerTwo.getData('controls'));
-            }
         }
         this.players.children.iterate(function (player: Phaser.Physics.Arcade.Sprite) {
             player.setCollideWorldBounds(true);
@@ -240,11 +238,12 @@ export class GameScene extends Phaser.Scene {
                 player.disableBody(true,true);
             });
 
-            this.gameOverText = this.add.text(0, 0, 'GAME OVER', { fontSize: '64px', fill: '#000'}).setOrigin(0.5, 0.5);
-            this.agrid.placeAt(16,3,this.gameOverText);
+            this.add.bitmapText(0,0, 'scorefont', 'Score: 0', 32).setOrigin(1,0),
+            this.gameOverText = this.add.bitmapText(0, 0, 'yellowfont', 'GAME OVER!', 64).setOrigin(0.5, 0.5);
+            this.agrid.placeAt(16,4,this.gameOverText);
             this.gameOver = true;
             this.time.delayedCall(1000, function (){
-                this.gameOverHintText = this.add.text(0, 0, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5, 0.5);
+                this.gameOverHintText = this.add.bitmapText(0, 0, 'yellowfont', 'Press Space to Continue', 32).setOrigin(0.5, 0.5);
                 this.agrid.placeAt(16,14,this.gameOverHintText);
             },[],this);
 
@@ -256,16 +255,16 @@ export class GameScene extends Phaser.Scene {
             if (this.playersleft === 0) {
 
                 if (this.players.getFirst(true).getData('score') > this.players.getLast(true).getData('score')) {
-                    this.gameOverText = this.add.text(0, 0, 'PLAYER 1 WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.bitmapText(0, 0, 'yellowfont', 'PLAYER 1 WINS!', 58).setOrigin(0.5, 0.5);
                 } else if (this.players.getFirst(true).getData('score') < this.players.getLast(true).getData('score')) {
-                    this.gameOverText = this.add.text(0, 0, 'PLAYER 2 WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.bitmapText(0, 0, 'yellowfont', 'PLAYER 2 WINS!', 58).setOrigin(0.5, 0.5);
                 } else {
-                    this.gameOverText = this.add.text(0, 0,  player.getData('name') + ' WINS!', { fontSize: '58px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverText = this.add.bitmapText(0, 0, 'yellowfont',  player.getData('name') + ' WINS!', 58).setOrigin(0.5, 0.5);
                 }
                 this.agrid.placeAt(16,3,this.gameOverText);
                 this.time.delayedCall(1000, function (){
                     this.gameOver = true;
-                    this.gameOverHintText = this.add.text(0, 0, 'Press Space to Continue', { fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+                    this.gameOverHintText = this.add.bitmapText(0, 0, 'yellowfont', 'Press Space to Continue', 32).setOrigin(0.5, 0.5);
                     this.agrid.placeAt(16, 14, this.gameOverHintText);
                 },[],this);
             } 
