@@ -237,8 +237,6 @@ export class GameScene extends Phaser.Scene {
             this.time.delayedCall(500, function (){
                 player.disableBody(true,true);
             });
-
-            this.add.bitmapText(0,0, 'scorefont', 'Score: 0', 32).setOrigin(1,0),
             this.gameOverText = this.add.bitmapText(0, 0, 'yellowfont', 'GAME OVER!', 64).setOrigin(0.5, 0.5);
             this.agrid.placeAt(16,4,this.gameOverText);
             this.gameOver = true;
