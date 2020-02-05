@@ -258,19 +258,21 @@ export default class GameScene extends Phaser.Scene {
         }
     }
     private spawnBomb() {
-        // Randomly pick player 1 or player 2 - Will always return player 1 in case of single player
-        const playerX = Math.floor(Math.random() * this.players.children.size);
-        const player: Phaser.Physics.Arcade.Sprite = this.players.getFirstNth(playerX, true);
+        if (!this.gameOver) {
+            // Randomly pick player 1 or player 2 - Will always return player 1 in case of single player
+            const playerX = Math.floor(Math.random() * this.players.children.size);
+            const player: Phaser.Physics.Arcade.Sprite = this.players.getFirstNth(playerX, true);
 
-        const x =
-            player.x < this.gameWidth / 2
-                ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
-                : Phaser.Math.Between(0, this.gameWidth / 2);
+            const x =
+                player.x < this.gameWidth / 2
+                    ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
+                    : Phaser.Math.Between(0, this.gameWidth / 2);
 
-        const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
-        bomb.setBounce(1, 1);
-        bomb.setCollideWorldBounds(true);
-        bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+            const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
+            bomb.setBounce(1, 1);
+            bomb.setCollideWorldBounds(true);
+            bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+        }
     }
 
     private hitBomb(
@@ -294,7 +296,7 @@ export default class GameScene extends Phaser.Scene {
                                 'destroy',
                                 function() {
                                     this.time.delayedCall(
-                                        5000,
+                                        7000,
                                         function() {
                                             this.spawnBomb();
                                         },
