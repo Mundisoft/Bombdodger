@@ -63,6 +63,11 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('WSAD', './assets/WSADBubble.png');
         this.load.image('arrows', './assets/ArrowsBubble.png');
 
+        this.load.spritesheet('pixel_bomb', './assets/pixelbomb.png', {
+            frameWidth: 45,
+            frameHeight: 45,
+        });
+
         this.load.spritesheet('Owl_idle', './assets/Owlet_Monster_Idle_4.png', {
             frameWidth: 32,
             frameHeight: 32,
@@ -139,6 +144,16 @@ export default class GameScene extends Phaser.Scene {
         if (this.firstGame) {
             this.agrid.placeAt(5, 14, playerOne.getData('controls'));
         }
+
+        this.anims.create({
+            key: 'pixel_bomb',
+            frames: this.anims.generateFrameNumbers('pixel_bomb', {
+                start: 0,
+                end: 8,
+            }),
+            frameRate: 10,
+            repeat: 0,
+        });
 
         this.setAnims(playerOne);
         playerOne.body.setOffset(9, 7);
@@ -266,8 +281,17 @@ export default class GameScene extends Phaser.Scene {
             player.setVelocityY(-200);
             player.data.values.doublejumps = this.doublejumps;
             bomb.setVelocityY(800);
-            this.time.delayedCall(1000, function() {
-                bomb.destroy();
+            this.time.delayedCall(500, function() {
+                bomb.body.stop();
+                bomb.disableBody();
+                bomb.anims.play('pixel_bomb', true);
+                bomb.on(
+                    'animationcomplete',
+                    function() {
+                        bomb.destroy();
+                    },
+                    this
+                );
             });
         } else if (this.singleplayer && !this.gameOver === true) {
             player.anims.play(`${player.getData('key')}_die`);
