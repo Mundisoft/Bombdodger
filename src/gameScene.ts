@@ -187,9 +187,6 @@ export default class GameScene extends Phaser.Scene {
         });
 
         this.physics.add.collider(this.players, world);
-        // remove player collisions until bug resolved
-        // bug - falls through terrain when jumped on
-        // this.physics.add.collider(this.players, this.players);
         this.physics.add.collider(this.stars, world);
         this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
@@ -227,10 +224,10 @@ export default class GameScene extends Phaser.Scene {
                             player.anims.play(`${player.getData('key')}_jump`, true);
                             player.setVelocityY(-this.jumpspeed);
                             player.data.values.controls.destroy();
-                            this.time.delayedCall(200, function() {
+                            if (player.data.values.doublejumps < this.doublejumps) {
                                 player.data.values.doublejumps++;
-                            });
-                        } else if (player.getData('doublejumps') > 1) {
+                            }
+                        } else if (player.getData('doublejumps') >= 1) {
                             player.setVelocityY(-this.jumpspeed);
                             player.anims.play(`${player.getData('key')}_jump`, false);
                             player.data.values.doublejumps--;
