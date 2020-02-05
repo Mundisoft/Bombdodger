@@ -191,17 +191,7 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar, null, this);
-
-        // TESTING
-        const x =
-            playerOne.x < this.gameWidth / 2
-                ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
-                : Phaser.Math.Between(0, this.gameWidth / 2);
-
-        const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
-        bomb.setBounce(1, 1);
-        bomb.setCollideWorldBounds(true);
-        bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+        this.spawnBomb();
 
         this.SPACE = this.input.keyboard.addKey('space');
     }
@@ -252,6 +242,21 @@ export default class GameScene extends Phaser.Scene {
             this.scene.start('GameScene', { singleplayer: this.singleplayer });
         }
     }
+    private spawnBomb() {
+        // Randomly pick player 1 or player 2 - Will always return player 1 in case of single player
+        const playerX = Math.floor(Math.random() * this.players.children.size);
+        const player: Phaser.Physics.Arcade.Sprite = this.players.getFirstNth(playerX, true);
+
+        const x =
+            player.x < this.gameWidth / 2
+                ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
+                : Phaser.Math.Between(0, this.gameWidth / 2);
+
+        const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1, 1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+    }
 
     private hitBomb(
         player: Phaser.Physics.Arcade.Sprite,
@@ -260,7 +265,8 @@ export default class GameScene extends Phaser.Scene {
         if (player.body.touching.down) {
             player.setVelocityY(-200);
             player.data.values.doublejumps = this.doublejumps;
-            this.time.delayedCall(200, function() {
+            bomb.setVelocityY(800);
+            this.time.delayedCall(1000, function() {
                 bomb.destroy();
             });
         } else if (this.singleplayer && !this.gameOver === true) {
@@ -351,15 +357,7 @@ export default class GameScene extends Phaser.Scene {
             this.stars.children.iterate(function(child: Phaser.Physics.Arcade.Sprite) {
                 child.enableBody(true, child.x, 0, true, true);
             });
-            const x =
-                player.x < this.gameWidth / 2
-                    ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
-                    : Phaser.Math.Between(0, this.gameWidth / 2);
-
-            const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
-            bomb.setBounce(1, 1);
-            bomb.setCollideWorldBounds(true);
-            bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+            this.spawnBomb();
         }
     }
 
