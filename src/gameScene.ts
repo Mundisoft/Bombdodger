@@ -281,18 +281,37 @@ export default class GameScene extends Phaser.Scene {
             player.setVelocityY(-200);
             player.data.values.doublejumps = this.doublejumps;
             bomb.setVelocityY(800);
-            this.time.delayedCall(500, function() {
-                bomb.body.stop();
-                bomb.disableBody();
-                bomb.anims.play('pixel_bomb', true);
-                bomb.on(
-                    'animationcomplete',
-                    function() {
-                        bomb.destroy();
-                    },
-                    this
-                );
-            });
+            this.time.delayedCall(
+                500,
+                function() {
+                    bomb.body.stop();
+                    bomb.disableBody();
+                    bomb.anims.play('pixel_bomb', true);
+                    bomb.on(
+                        'animationcomplete',
+                        function() {
+                            bomb.once(
+                                'destroy',
+                                function() {
+                                    this.time.delayedCall(
+                                        5000,
+                                        function() {
+                                            this.spawnBomb();
+                                        },
+                                        null,
+                                        this
+                                    );
+                                },
+                                this
+                            );
+                            bomb.destroy();
+                        },
+                        this
+                    );
+                },
+                null,
+                this
+            );
         } else if (this.singleplayer && !this.gameOver === true) {
             player.anims.play(`${player.getData('key')}_die`);
 
