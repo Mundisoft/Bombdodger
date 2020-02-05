@@ -199,6 +199,11 @@ export default class GameScene extends Phaser.Scene {
         if (this.gameOver !== true) {
             this.players.children.iterate(function(player: Phaser.Physics.Arcade.Sprite) {
                 if (!player.getData('dead')) {
+                    if (player.body.blocked.down) {
+                        if (player.data.values.doublejumps < this.doublejumps) {
+                            player.data.values.doublejumps = this.doublejumps;
+                        }
+                    }
                     if (player.getData('left').isDown) {
                         player.setVelocityX(-this.movespeed);
                         player.data.values.controls.destroy();
@@ -224,9 +229,6 @@ export default class GameScene extends Phaser.Scene {
                             player.anims.play(`${player.getData('key')}_jump`, true);
                             player.setVelocityY(-this.jumpspeed);
                             player.data.values.controls.destroy();
-                            if (player.data.values.doublejumps < this.doublejumps) {
-                                player.data.values.doublejumps++;
-                            }
                         } else if (player.getData('doublejumps') >= 1) {
                             player.setVelocityY(-this.jumpspeed);
                             player.anims.play(`${player.getData('key')}_jump`, false);
