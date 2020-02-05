@@ -192,6 +192,17 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar, null, this);
 
+        // TESTING
+        const x =
+            playerOne.x < this.gameWidth / 2
+                ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
+                : Phaser.Math.Between(0, this.gameWidth / 2);
+
+        const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1, 1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+
         this.SPACE = this.input.keyboard.addKey('space');
     }
 
@@ -242,8 +253,17 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
-    private hitBomb(player: Phaser.Physics.Arcade.Sprite): void {
-        if (this.singleplayer && !this.gameOver === true) {
+    private hitBomb(
+        player: Phaser.Physics.Arcade.Sprite,
+        bomb: Phaser.Physics.Arcade.Sprite
+    ): void {
+        if (player.body.touching.down) {
+            player.setVelocityY(-200);
+            player.data.values.doublejumps = this.doublejumps;
+            this.time.delayedCall(200, function() {
+                bomb.destroy();
+            });
+        } else if (this.singleplayer && !this.gameOver === true) {
             player.anims.play(`${player.getData('key')}_die`);
 
             // this is really hacky and I hate it

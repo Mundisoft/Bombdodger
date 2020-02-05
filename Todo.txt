@@ -5,6 +5,8 @@ Powerups
 
 ===
 
+Global Variable Purge
+
 Different enemy types
 
 Different Levels
@@ -12,8 +14,6 @@ Different Levels
 Put asset loading into JSON
 
 Fix death animation bug --- hack fixed right now
-
-Bring back star jumping?
 
 Pretty up the welcome screens and scores - better UI
 
