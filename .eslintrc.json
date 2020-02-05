@@ -3,7 +3,12 @@
     "browser": true,
     "es6": true
   },
-  "extends": ["airbnb-base", "eslint-config-prettier", "prettier"],
+  "extends": [
+    "airbnb-base",
+    "eslint-config-prettier",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"

@@ -1,5 +1,6 @@
 import 'phaser';
-import GameScene from './gameScene'; // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+import GameScene from './gameScene';
 
 export default class AlignGrid {
   scene: GameScene;
@@ -46,7 +47,6 @@ export default class AlignGrid {
       this.placeAt(j, 0, numText);
     }
   }
-
   public placeAt(
     xx: number,
     yy: number,
