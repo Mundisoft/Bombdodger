@@ -179,8 +179,9 @@ export default class GameScene extends Phaser.Scene {
                 });
             this.agrid.placeAt(27, 13, playerTwo);
             this.agrid.placeAt(31, 0, playerTwo.getData('scoreText'));
-            this.agrid.placeAt(26, 14, playerTwo.getData('controls'));
-
+            if (this.firstGame) {
+                this.agrid.placeAt(26, 14, playerTwo.getData('controls'));
+            }
             this.setAnims(playerTwo);
             playerTwo.body.setOffset(9, 7);
             playerTwo.body.setSize(13, 25, false);
