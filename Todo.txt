@@ -9,17 +9,11 @@ Different enemy types
 
 Different Levels
 
-Event driven as opposed to listener
-
-Lower gravity for things that aren't the player?
-
 Put asset loading into JSON
 
 Fix death animation bug --- hack fixed right now
 
 Bring back star jumping?
-
-Use proper grid scaling for all assets (bombs spawn correctly on opposite side)
 
 Pretty up the welcome screens and scores - better UI
 
