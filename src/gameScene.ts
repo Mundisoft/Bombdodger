@@ -1,9 +1,8 @@
 import * as Phaser from 'phaser';
 import AlignGrid from './AlignGrid';
+import Player from './Player';
 
 export default class GameScene extends Phaser.Scene {
-    best: number;
-    bestScoreText: Phaser.GameObjects.BitmapText;
     stars: Phaser.Physics.Arcade.Group;
     bombs: Phaser.Physics.Arcade.Group;
     platforms: Phaser.Physics.Arcade.StaticGroup;
@@ -113,41 +112,62 @@ export default class GameScene extends Phaser.Scene {
 
         this.agrid = new AlignGrid(this.gridConfig);
         // this.agrid.showNumbers();
+
+        const playerOne = new Player(this, 0, 0, {
+            name: 'Player 1',
+            key: 'Owl',
+            position: 1,
+            doublejumps: this.doublejumps,
+            movespeed: this.movespeed,
+            jumpspeed: this.jumpspeed,
+        });
+        this.players.add(playerOne);
+        playerOne.setControls('w', 's', 'a', 'd');
+        playerOne.scoreText = this.add
+            .bitmapText(0, 0, 'scorefont', `score: ${playerOne.score}`, 32)
+            .setOrigin(1, 0);
+        this.agrid.placeAt(4, 13, playerOne);
+        this.agrid.placeAt(0, 0, playerOne.scoreText);
+
         if (this.firstGame == null) {
             this.firstGame = true;
-            this.best = 0;
+            playerOne.hint = this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1);
+            this.agrid.placeAt(5, 14, playerOne.hint);
         } else {
             this.firstGame = false;
             if (this.singleplayer) {
-                this.bestScoreText = this.add
-                    .bitmapText(0, 0, 'scorefont', `Best: ${this.best}`, 32)
+                playerOne.bestScoreText = this.add
+                    .bitmapText(0, 0, 'scorefont', `Best: ${playerOne.bestScore}`, 32)
                     .setOrigin(1, 0);
-                this.agrid.placeAt(31, 0, this.bestScoreText);
+                this.agrid.placeAt(31, 0, playerOne.bestScoreText);
             }
         }
-
-        const playerOne: Phaser.Physics.Arcade.Sprite = this.players.create(0, 0, 'Owl').setData({
-            name: 'Player 1',
-            key: 'Owl',
-            score: 0,
-            scoreText: this.add.bitmapText(0, 0, 'scorefont', 'Score: 0', 32).setOrigin(0, 0),
-            dead: false,
-            up: this.input.keyboard.addKey('w'),
-            down: this.input.keyboard.addKey('s'),
-            left: this.input.keyboard.addKey('a'),
-            right: this.input.keyboard.addKey('d'),
-            doublejumps: this.doublejumps,
-            controls: this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1),
-            canWallJump: true,
-            justWallJumpedLeft: false,
-            justWallJumpedRight: false,
-        });
-        this.agrid.placeAt(4, 13, playerOne);
-        this.agrid.placeAt(0, 0, playerOne.getData('scoreText'));
-
-        if (this.firstGame) {
-            this.agrid.placeAt(5, 14, playerOne.getData('controls'));
+        if (!this.singleplayer) {
+            const playerTwo = new Player(this, 0, 0, {
+                name: 'Player 2',
+                key: 'Dude',
+                position: 2,
+                doublejumps: this.doublejumps,
+                movespeed: this.movespeed,
+                jumpspeed: this.jumpspeed,
+            });
+            this.players.add(playerTwo);
+            playerTwo.setControls('up', 'down', 'left', 'right');
+            playerTwo.hint = this.add.image(0, 0, 'arrows').setOrigin(0.8, 1);
+            playerOne.scoreText = this.add
+                .bitmapText(0, 0, 'scorefont', `score: ${playerTwo.score}`, 32)
+                .setOrigin(1, 1);
+            this.agrid.placeAt(27, 13, playerTwo);
+            this.agrid.placeAt(31, 0, playerTwo.scoreText);
+            if (this.firstGame) {
+                this.agrid.placeAt(26, 14, playerTwo.getData('controls'));
+            }
+            this.playersleft++;
         }
+
+        this.players.children.iterate(function(player: Player) {
+            player.setCollideWorldBounds(true);
+        });
 
         this.anims.create({
             key: 'pixel_bomb',
@@ -157,43 +177,6 @@ export default class GameScene extends Phaser.Scene {
             }),
             frameRate: 10,
             repeat: 0,
-        });
-
-        this.setAnims(playerOne);
-        playerOne.body.setOffset(9, 7);
-        playerOne.body.setSize(13, 25, false);
-
-        if (!this.singleplayer) {
-            const playerTwo: Phaser.Physics.Arcade.Sprite = this.players
-                .create(0, 0, 'Dude')
-                .setData({
-                    name: 'Player 2',
-                    key: 'Dude',
-                    score: 0,
-                    scoreText: this.add
-                        .bitmapText(0, 0, 'scorefont', 'Score: 0', 32)
-                        .setOrigin(1, 0),
-                    dead: false,
-                    up: this.input.keyboard.addKey('up'),
-                    down: this.input.keyboard.addKey('down'),
-                    left: this.input.keyboard.addKey('left'),
-                    right: this.input.keyboard.addKey('right'),
-                    doublejumps: this.doublejumps,
-                    controls: this.add.image(0, 0, 'arrows').setOrigin(0.8, 1),
-                    canWallJump: true,
-                });
-            this.agrid.placeAt(27, 13, playerTwo);
-            this.agrid.placeAt(31, 0, playerTwo.getData('scoreText'));
-            if (this.firstGame) {
-                this.agrid.placeAt(26, 14, playerTwo.getData('controls'));
-            }
-            this.setAnims(playerTwo);
-            playerTwo.body.setOffset(9, 7);
-            playerTwo.body.setSize(13, 25, false);
-            this.playersleft++;
-        }
-        this.players.children.iterate(function(player: Phaser.Physics.Arcade.Sprite) {
-            player.setCollideWorldBounds(true);
         });
 
         this.bombs = this.physics.add.group();
@@ -222,65 +205,25 @@ export default class GameScene extends Phaser.Scene {
                 this.scene.start('GameScene', { singleplayer: this.singleplayer });
             }
         } else {
-            this.players.children.iterate(function(player: Phaser.Physics.Arcade.Sprite) {
-                if (!player.getData('dead')) {
+            this.players.children.iterate(function(player: Player) {
+                if (!player.dead) {
                     if (player.body.blocked.down) {
-                        if (player.data.values.doublejumps < this.doublejumps) {
-                            player.data.values.doublejumps = this.doublejumps;
+                        if (player.doublejumps < this.doublejumps) {
+                            player.doublejumps = this.doublejumps;
                         }
                     }
-                    if (player.getData('left').isDown) {
-                        this.movePlayer(player, 'left');
-                    } else if (player.getData('right').isDown) {
-                        this.movePlayer(player, 'right');
+                    if (player.left.isDown) {
+                        player.moveLeft();
+                    } else if (player.right.isDown) {
+                        player.moveRight();
                     } else if (player.body.blocked.down) {
-                        player.setVelocityX(0);
-                        player.anims.play(`${player.getData('key')}_idle`, true);
+                        player.standIdle();
                     }
-                    if (Phaser.Input.Keyboard.JustDown(player.getData('up'))) {
-                        this.handleJump(player);
+                    if (Phaser.Input.Keyboard.JustDown(player.up)) {
+                        player.handleJump();
                     }
                 }
             }, this);
-        }
-    }
-    private movePlayer(player, direction: string) {
-        if (direction === 'left') {
-            player.setVelocityX(-this.movespeed);
-            player.data.values.controls.destroy();
-            if (player.body.blocked.down) {
-                player.anims.play(`${player.getData('key')}_left`, true);
-            }
-            player.setFlipX(true);
-        } else if (direction === 'right') {
-            player.setVelocityX(this.movespeed);
-            player.data.values.controls.destroy();
-            if (player.body.blocked.down) {
-                player.anims.play(`${player.getData('key')}_right`, true);
-            }
-            player.setFlipX(false);
-        }
-    }
-
-    private handleJump(player): void {
-        if (player.body.blocked.down) {
-            player.anims.play(`${player.getData('key')}_jump`, true);
-            player.setVelocityY(-this.jumpspeed);
-            player.data.values.controls.destroy();
-        } else if (player.body.blocked.left) {
-            player.setVelocityX(this.movespeed);
-            player.setVelocityY(-this.jumpspeed);
-            player.anims.play(`${player.getData('key')}_jump`, false);
-            player.setFlipX(true);
-        } else if (player.body.blocked.right) {
-            player.setVelocityX(-this.movespeed);
-            player.setVelocityY(-this.jumpspeed);
-            player.anims.play(`${player.getData('key')}_jump`, false);
-            player.setFlipX(false);
-        } else if (player.data.values.doublejumps >= 1) {
-            player.setVelocityY(-this.jumpspeed);
-            player.anims.play(`${player.getData('key')}_jump`, false);
-            player.data.values.doublejumps--;
         }
     }
     private spawnBomb() {
@@ -301,10 +244,7 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
-    private hitBomb(
-        player: Phaser.Physics.Arcade.Sprite,
-        bomb: Phaser.Physics.Arcade.Sprite
-    ): void {
+    private hitBomb(player: Player, bomb: Phaser.Physics.Arcade.Sprite): void {
         if (player.body.touching.down) {
             player.setVelocityY(-200);
             player.data.values.doublejumps = this.doublejumps;
@@ -340,18 +280,13 @@ export default class GameScene extends Phaser.Scene {
                 null,
                 this
             );
-        } else if (this.singleplayer && !this.gameOver === true) {
-            player.anims.play(`${player.getData('key')}_die`);
-
-            // this is really hacky and I hate it
-            this.time.delayedCall(500, function() {
-                player.disableBody(true, true);
-            });
+        } else if (this.singleplayer && !this.gameOver) {
+            player.die();
+            this.gameOver = true;
             this.gameOverText = this.add
                 .bitmapText(0, 0, 'yellowfont', 'GAME OVER!', 64)
                 .setOrigin(0.5, 0.5);
             this.agrid.placeAt(16, 4, this.gameOverText);
-            this.gameOver = true;
             this.time.delayedCall(
                 1000,
                 function() {
@@ -363,29 +298,21 @@ export default class GameScene extends Phaser.Scene {
                 [],
                 this
             );
-        } else if (!this.singleplayer && !player.getData('dead')) {
+        } else if (!this.singleplayer && !player.dead) {
+            player.die();
             this.playersleft--;
-            player.data.values.dead = true;
-            player.anims.play(`${player.getData('key')}_die`);
-
             if (this.playersleft === 0) {
-                if (
-                    this.players.getFirst(true).getData('score') >
-                    this.players.getLast(true).getData('score')
-                ) {
+                if (this.players.getFirst(true).score > this.players.getLast(true).score) {
                     this.gameOverText = this.add
                         .bitmapText(0, 0, 'yellowfont', 'PLAYER 1 WINS!', 58)
                         .setOrigin(0.5, 0.5);
-                } else if (
-                    this.players.getFirst(true).getData('score') <
-                    this.players.getLast(true).getData('score')
-                ) {
+                } else if (this.players.getFirst(true).score < this.players.getLast(true).score) {
                     this.gameOverText = this.add
                         .bitmapText(0, 0, 'yellowfont', 'PLAYER 2 WINS!', 58)
                         .setOrigin(0.5, 0.5);
                 } else {
                     this.gameOverText = this.add
-                        .bitmapText(0, 0, 'yellowfont', `${player.getData('name')} WINS!`, 58)
+                        .bitmapText(0, 0, 'yellowfont', `${player.name} WINS!`, 58)
                         .setOrigin(0.5, 0.5);
                 }
                 this.agrid.placeAt(16, 3, this.gameOverText);
@@ -402,95 +329,21 @@ export default class GameScene extends Phaser.Scene {
                     this
                 );
             }
-            this.time.delayedCall(500, function() {
-                player.disableBody(false, true);
-            });
         }
     }
 
-    private collectStar(player, star): void {
+    private collectStar(player: Player, star: Phaser.Physics.Arcade.Sprite): void {
         star.disableBody(true, true);
+        player.score += 10;
+        player.scoreText.setText(`Score: ${player.score}`);
+        const shouldDisplayScore = this.singleplayer && !this.firstGame;
+        player.updateBestScore(shouldDisplayScore);
 
-        player.data.values.score += 10;
-        player.data.values.scoreText.setText(`Score: ${player.getData('score')}`);
-
-        if (this.singleplayer) {
-            if (this.best < player.getData('score')) {
-                this.best = player.getData('score');
-                if (this.firstGame !== true) {
-                    this.bestScoreText.setText(`Best : ${this.best}`);
-                    // this.bestScoreText.setColor('Green');
-                    this.bestScoreText.setFontSize(36);
-                }
-            }
-        }
         if (this.stars.countActive(true) === 0) {
             this.stars.children.iterate(function(child: Phaser.Physics.Arcade.Sprite) {
                 child.enableBody(true, child.x, 0, true, true);
             });
             this.spawnBomb();
         }
-    }
-
-    private setAnims(player: Phaser.Physics.Arcade.Sprite): void {
-        this.anims.create({
-            key: `${player.getData('key')}_left`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_run`, {
-                start: 0,
-                end: 5,
-            }),
-            frameRate: 10,
-            repeat: -1,
-        });
-
-        this.anims.create({
-            key: `${player.getData('key')}_right`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_run`, {
-                start: 0,
-                end: 5,
-            }),
-            frameRate: 10,
-            repeat: -1,
-        });
-
-        this.anims.create({
-            key: `${player.getData('key')}_jump`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_jump`, {
-                start: 0,
-                end: 7,
-            }),
-            frameRate: 6,
-        });
-
-        this.anims.create({
-            key: `${player.getData('key')}_die`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_die`, {
-                start: 0,
-                end: 7,
-            }),
-            frameRate: 10,
-            repeat: -1,
-        });
-
-        this.anims.create({
-            key: `${player.getData('key')}_idle`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_idle`, {
-                start: 0,
-                end: 3,
-            }),
-            frameRate: 5,
-            repeat: -1,
-        });
-
-        this.anims.create({
-            key: `${player.getData('key')}_die`,
-            frames: this.anims.generateFrameNumbers(`${player.texture.key}_die`, {
-                start: 0,
-                end: 7,
-            }),
-            frameRate: 5,
-            repeat: 0,
-            hideOnComplete: true,
-        });
     }
 }
