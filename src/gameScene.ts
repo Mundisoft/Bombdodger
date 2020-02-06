@@ -243,7 +243,7 @@ export default class GameScene extends Phaser.Scene {
                     ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
                     : Phaser.Math.Between(0, this.gameWidth / 2);
 
-            const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 16, 'bomb');
+            const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 1, 'bomb');
             bomb.setBounce(1, 1);
             bomb.setCollideWorldBounds(true);
             bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
