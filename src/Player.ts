@@ -32,7 +32,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     public moveLeft(movespeed = this.movespeed): void {
         this.setVelocityX(-movespeed);
-        this.hint.destroy();
+        this.destroyHint();
         if (this.body.blocked.down) {
             this.anims.play(`${this.key}_left`, true);
         }
@@ -41,7 +41,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     public moveRight(movespeed = this.movespeed): void {
         this.setVelocityX(movespeed);
-        this.hint.destroy();
+        this.destroyHint();
         if (this.body.blocked.down) {
             this.anims.play(`${this.key}_right`, true);
         }
@@ -51,10 +51,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     public die() {
         this.anims.play(`${this.key}_die`);
         this.dead = true;
-        // this is really hacky and I hate it
-        this.scene.time.delayedCall(500, function() {
-            this.disableBody(true, true);
-        });
     }
 
     public updateBestScore(display: boolean): void {
@@ -66,14 +62,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    private jump(jumpspeed): void {
-        this.anims.play(`${this.key}_jump`, true);
+    private destroyHint(): void {
+        if (this.hint != null) {
+            this.hint.destroy();
+        }
+    }
+
+    public jump(jumpspeed = this.jumpspeed): void {
         this.setVelocityY(-jumpspeed);
+        this.scene.time.delayedCall(
+            10,
+            function() {
+                this.anims.play(`${this.key}_jump`, false);
+            },
+            [],
+            this
+        );
     }
 
     public handleJump(jumpspeed = this.jumpspeed): void {
         if (this.body.blocked.down) {
-            this.hint.destroy();
+            this.destroyHint();
         } else if (this.body.blocked.left) {
             this.setVelocityX(this.movespeed);
             this.setFlipX(true);
@@ -100,7 +109,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 start: 0,
                 end: 5,
             }),
-            frameRate: 10,
+            frameRate: 15,
             repeat: -1,
         });
 
@@ -110,7 +119,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 start: 0,
                 end: 5,
             }),
-            frameRate: 10,
+            frameRate: 15,
             repeat: -1,
         });
 
@@ -120,7 +129,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 start: 0,
                 end: 7,
             }),
-            frameRate: 6,
+            frameRate: 15,
         });
 
         this.scene.anims.create({
@@ -139,7 +148,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 start: 0,
                 end: 7,
             }),
-            frameRate: 5,
+            frameRate: 10,
             repeat: 0,
             hideOnComplete: true,
         });
@@ -156,6 +165,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             doublejumps,
             movespeed,
             jumpspeed,
+            bestScore,
         }: {
             name: string;
             key: string;
@@ -163,9 +173,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             doublejumps: number;
             movespeed: number;
             jumpspeed: number;
+            bestScore: number;
         }
     ) {
         super(scene, x, y, key);
+        scene.add.existing(this);
         this.name = name;
         this.key = key;
         this.position = position;
@@ -173,11 +185,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.movespeed = movespeed;
         this.jumpspeed = jumpspeed;
         this.score = 0;
-        this.bestScore = 0;
+        this.bestScore = bestScore;
         this.dead = false;
-
         this.setAnims();
-        this.setHitBoxes();
     }
 
     // controls: this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1),

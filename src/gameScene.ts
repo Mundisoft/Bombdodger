@@ -22,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
     gameWidth: number;
     gameHeight: any;
     testText: any;
+    startingBest: number;
 
     constructor() {
         super({
@@ -33,6 +34,7 @@ export default class GameScene extends Phaser.Scene {
         this.gameHeight = Number(this.game.config.height);
         this.gameOver = false;
         this.singleplayer = params.singleplayer;
+        this.startingBest = 0;
         this.movespeed = 150;
         this.jumpspeed = 320;
         this.playersleft = 1;
@@ -117,15 +119,17 @@ export default class GameScene extends Phaser.Scene {
             name: 'Player 1',
             key: 'Owl',
             position: 1,
+            bestScore: this.startingBest,
             doublejumps: this.doublejumps,
             movespeed: this.movespeed,
             jumpspeed: this.jumpspeed,
         });
         this.players.add(playerOne);
+        playerOne.setHitBoxes();
         playerOne.setControls('w', 's', 'a', 'd');
         playerOne.scoreText = this.add
             .bitmapText(0, 0, 'scorefont', `score: ${playerOne.score}`, 32)
-            .setOrigin(1, 0);
+            .setOrigin(0, 0);
         this.agrid.placeAt(4, 13, playerOne);
         this.agrid.placeAt(0, 0, playerOne.scoreText);
 
@@ -147,20 +151,22 @@ export default class GameScene extends Phaser.Scene {
                 name: 'Player 2',
                 key: 'Dude',
                 position: 2,
+                bestScore: this.startingBest,
                 doublejumps: this.doublejumps,
                 movespeed: this.movespeed,
                 jumpspeed: this.jumpspeed,
             });
             this.players.add(playerTwo);
+            playerTwo.setHitBoxes();
             playerTwo.setControls('up', 'down', 'left', 'right');
             playerTwo.hint = this.add.image(0, 0, 'arrows').setOrigin(0.8, 1);
-            playerOne.scoreText = this.add
+            playerTwo.scoreText = this.add
                 .bitmapText(0, 0, 'scorefont', `score: ${playerTwo.score}`, 32)
-                .setOrigin(1, 1);
+                .setOrigin(1, 0);
             this.agrid.placeAt(27, 13, playerTwo);
             this.agrid.placeAt(31, 0, playerTwo.scoreText);
             if (this.firstGame) {
-                this.agrid.placeAt(26, 14, playerTwo.getData('controls'));
+                this.agrid.placeAt(26, 14, playerTwo.hint);
             }
             this.playersleft++;
         }
@@ -195,7 +201,7 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar, null, this);
-        // this.spawnBomb();
+        this.spawnBomb();
         // this.testText = this.add.bitmapText(100, 100, 'scorefont', 'hello', 32);
         this.SPACE = this.input.keyboard.addKey('space');
     }
@@ -246,8 +252,8 @@ export default class GameScene extends Phaser.Scene {
 
     private hitBomb(player: Player, bomb: Phaser.Physics.Arcade.Sprite): void {
         if (player.body.touching.down) {
-            player.setVelocityY(-200);
-            player.data.values.doublejumps = this.doublejumps;
+            player.jump();
+            player.doublejumps = this.doublejumps;
             bomb.setVelocityY(800);
             this.time.delayedCall(
                 500,
@@ -282,6 +288,7 @@ export default class GameScene extends Phaser.Scene {
             );
         } else if (this.singleplayer && !this.gameOver) {
             player.die();
+            this.startingBest = player.bestScore;
             this.gameOver = true;
             this.gameOverText = this.add
                 .bitmapText(0, 0, 'yellowfont', 'GAME OVER!', 64)
@@ -303,14 +310,17 @@ export default class GameScene extends Phaser.Scene {
             this.playersleft--;
             if (this.playersleft === 0) {
                 if (this.players.getFirst(true).score > this.players.getLast(true).score) {
+                    this.startingBest = this.players.getFirst(true).bestScore;
                     this.gameOverText = this.add
                         .bitmapText(0, 0, 'yellowfont', 'PLAYER 1 WINS!', 58)
                         .setOrigin(0.5, 0.5);
                 } else if (this.players.getFirst(true).score < this.players.getLast(true).score) {
+                    this.startingBest = this.players.getLast(true).bestScore;
                     this.gameOverText = this.add
                         .bitmapText(0, 0, 'yellowfont', 'PLAYER 2 WINS!', 58)
                         .setOrigin(0.5, 0.5);
                 } else {
+                    this.startingBest = this.players.getFirst(true).bestScore;
                     this.gameOverText = this.add
                         .bitmapText(0, 0, 'yellowfont', `${player.name} WINS!`, 58)
                         .setOrigin(0.5, 0.5);
