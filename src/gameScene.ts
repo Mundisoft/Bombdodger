@@ -22,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
     SPACE: Phaser.Input.Keyboard.Key;
     gameWidth: number;
     gameHeight: any;
+    testText: any;
 
     constructor() {
         super({
@@ -137,6 +138,9 @@ export default class GameScene extends Phaser.Scene {
             right: this.input.keyboard.addKey('d'),
             doublejumps: this.doublejumps,
             controls: this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1),
+            canWallJump: true,
+            justWallJumpedLeft: false,
+            justWallJumpedRight: false,
         });
         this.agrid.placeAt(4, 13, playerOne);
         this.agrid.placeAt(0, 0, playerOne.getData('scoreText'));
@@ -176,6 +180,7 @@ export default class GameScene extends Phaser.Scene {
                     right: this.input.keyboard.addKey('right'),
                     doublejumps: this.doublejumps,
                     controls: this.add.image(0, 0, 'arrows').setOrigin(0.8, 1),
+                    canWallJump: true,
                 });
             this.agrid.placeAt(27, 13, playerTwo);
             this.agrid.placeAt(31, 0, playerTwo.getData('scoreText'));
@@ -207,13 +212,16 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.bombs, world);
         this.physics.add.collider(this.players, this.bombs, this.hitBomb, null, this);
         this.physics.add.overlap(this.players, this.stars, this.collectStar, null, this);
-        this.spawnBomb();
-
+        // this.spawnBomb();
+        // this.testText = this.add.bitmapText(100, 100, 'scorefont', 'hello', 32);
         this.SPACE = this.input.keyboard.addKey('space');
     }
-
     update(): void {
-        if (this.gameOver !== true) {
+        if (this.gameOver === true) {
+            if (this.SPACE.isDown) {
+                this.scene.start('GameScene', { singleplayer: this.singleplayer });
+            }
+        } else {
             this.players.children.iterate(function(player: Phaser.Physics.Arcade.Sprite) {
                 if (!player.getData('dead')) {
                     if (player.body.blocked.down) {
@@ -222,40 +230,57 @@ export default class GameScene extends Phaser.Scene {
                         }
                     }
                     if (player.getData('left').isDown) {
-                        player.setVelocityX(-this.movespeed);
-                        player.data.values.controls.destroy();
-                        if (player.body.blocked.down) {
-                            player.anims.play(`${player.getData('key')}_left`, true);
-                        }
-                        player.setFlipX(true);
+                        this.movePlayer(player, 'left');
                     } else if (player.getData('right').isDown) {
-                        player.setVelocityX(this.movespeed);
-                        player.data.values.controls.destroy();
-                        if (player.body.blocked.down) {
-                            player.anims.play(`${player.getData('key')}_right`, true);
-                        }
-                        player.setFlipX(false);
-                    } else {
+                        this.movePlayer(player, 'right');
+                    } else if (player.body.blocked.down) {
                         player.setVelocityX(0);
-                        if (player.body.blocked.down) {
-                            player.anims.play(`${player.getData('key')}_idle`, true);
-                        }
+                        player.anims.play(`${player.getData('key')}_idle`, true);
                     }
                     if (Phaser.Input.Keyboard.JustDown(player.getData('up'))) {
-                        if (player.body.blocked.down) {
-                            player.anims.play(`${player.getData('key')}_jump`, true);
-                            player.setVelocityY(-this.jumpspeed);
-                            player.data.values.controls.destroy();
-                        } else if (player.getData('doublejumps') >= 1) {
-                            player.setVelocityY(-this.jumpspeed);
-                            player.anims.play(`${player.getData('key')}_jump`, false);
-                            player.data.values.doublejumps--;
-                        }
+                        this.handleJump(player);
                     }
                 }
             }, this);
-        } else if (this.SPACE.isDown) {
-            this.scene.start('GameScene', { singleplayer: this.singleplayer });
+        }
+    }
+    private movePlayer(player, direction: string) {
+        if (direction === 'left') {
+            player.setVelocityX(-this.movespeed);
+            player.data.values.controls.destroy();
+            if (player.body.blocked.down) {
+                player.anims.play(`${player.getData('key')}_left`, true);
+            }
+            player.setFlipX(true);
+        } else if (direction === 'right') {
+            player.setVelocityX(this.movespeed);
+            player.data.values.controls.destroy();
+            if (player.body.blocked.down) {
+                player.anims.play(`${player.getData('key')}_right`, true);
+            }
+            player.setFlipX(false);
+        }
+    }
+
+    private handleJump(player): void {
+        if (player.body.blocked.down) {
+            player.anims.play(`${player.getData('key')}_jump`, true);
+            player.setVelocityY(-this.jumpspeed);
+            player.data.values.controls.destroy();
+        } else if (player.body.blocked.left) {
+            player.setVelocityX(this.movespeed);
+            player.setVelocityY(-this.jumpspeed);
+            player.anims.play(`${player.getData('key')}_jump`, false);
+            player.setFlipX(true);
+        } else if (player.body.blocked.right) {
+            player.setVelocityX(-this.movespeed);
+            player.setVelocityY(-this.jumpspeed);
+            player.anims.play(`${player.getData('key')}_jump`, false);
+            player.setFlipX(false);
+        } else if (player.data.values.doublejumps >= 1) {
+            player.setVelocityY(-this.jumpspeed);
+            player.anims.play(`${player.getData('key')}_jump`, false);
+            player.data.values.doublejumps--;
         }
     }
     private spawnBomb() {

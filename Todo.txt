@@ -22,6 +22,8 @@ Remove bestscore and replace it with a text effect on score
 
 Bomb plays explode animation 2 bounces after being jumped on
 
+Create Player Class
+
 
 Tween score to middle of screen at gameover
 
