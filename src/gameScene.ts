@@ -116,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
         this.agrid = new AlignGrid(this.gridConfig);
         // this.agrid.showNumbers();
 
-        const playerOne = new Player(this, 0, 0, {
+        const playerOne = new Player(this, this.players, 0, 0, {
             name: 'Player 1',
             key: 'Owl',
             position: 1,
@@ -124,13 +124,12 @@ export default class GameScene extends Phaser.Scene {
             doublejumps: this.doublejumps,
             movespeed: this.movespeed,
             jumpspeed: this.jumpspeed,
+            up: 'up',
+            down: 'down',
+            left: 'left',
+            right: 'right',
         });
-        this.players.add(playerOne);
-        playerOne.setHitBoxes();
-        playerOne.setControls('w', 's', 'a', 'd');
-        playerOne.scoreText = this.add
-            .bitmapText(0, 0, 'scorefont', `score: ${playerOne.score}`, 32)
-            .setOrigin(0, 0);
+        playerOne.initScoreText(0, 0);
         this.agrid.placeAt(4, 13, playerOne);
         this.agrid.placeAt(0, 0, playerOne.scoreText);
 
@@ -148,7 +147,8 @@ export default class GameScene extends Phaser.Scene {
             }
         }
         if (!this.singleplayer) {
-            const playerTwo = new Player(this, 0, 0, {
+            playerOne.setControls('w', 's', 'a', 'd');
+            const playerTwo = new Player(this, this.players, 0, 0, {
                 name: 'Player 2',
                 key: 'Dude',
                 position: 2,
@@ -156,14 +156,13 @@ export default class GameScene extends Phaser.Scene {
                 doublejumps: this.doublejumps,
                 movespeed: this.movespeed,
                 jumpspeed: this.jumpspeed,
+                up: 'up',
+                down: 'down',
+                left: 'left',
+                right: 'right',
             });
-            this.players.add(playerTwo);
-            playerTwo.setHitBoxes();
-            playerTwo.setControls('up', 'down', 'left', 'right');
             playerTwo.hint = this.add.image(0, 0, 'arrows').setOrigin(0.8, 1);
-            playerTwo.scoreText = this.add
-                .bitmapText(0, 0, 'scorefont', `score: ${playerTwo.score}`, 32)
-                .setOrigin(1, 0);
+            playerTwo.initScoreText(1, 0);
             this.agrid.placeAt(27, 13, playerTwo);
             this.agrid.placeAt(31, 0, playerTwo.scoreText);
             if (this.firstGame) {
@@ -171,11 +170,6 @@ export default class GameScene extends Phaser.Scene {
             }
             this.playersleft++;
         }
-
-        this.players.children.iterate(function(player: Player) {
-            player.setCollideWorldBounds(true);
-        });
-
         this.anims.create({
             key: 'pixel_bomb',
             frames: this.anims.generateFrameNumbers('pixel_bomb', {

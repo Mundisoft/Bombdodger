@@ -68,6 +68,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    public initScoreText(originX: number, originY: number) {
+        this.scoreText = this.scene.add
+            .bitmapText(0, 0, 'scorefont', `score: ${this.score}`, 32)
+            .setOrigin(originX, originY);
+    }
+
     public jump(jumpspeed = this.jumpspeed): void {
         this.setVelocityY(-jumpspeed);
         this.scene.time.delayedCall(
@@ -156,6 +162,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(
         scene: Phaser.Scene,
+        group: Phaser.Physics.Arcade.Group,
         x: number,
         y: number,
         {
@@ -166,6 +173,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             movespeed,
             jumpspeed,
             bestScore,
+            up,
+            down,
+            left,
+            right,
         }: {
             name: string;
             key: string;
@@ -174,9 +185,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             movespeed: number;
             jumpspeed: number;
             bestScore: number;
+            up: string;
+            down: string;
+            left: string;
+            right: string;
         }
     ) {
         super(scene, x, y, key);
+        group.add(this);
         scene.add.existing(this);
         this.name = name;
         this.key = key;
@@ -187,7 +203,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.score = 0;
         this.bestScore = bestScore;
         this.dead = false;
+        this.setControls(up, down, left, right);
         this.setAnims();
+        this.setHitBoxes();
+        this.setCollideWorldBounds(true);
     }
 
     // controls: this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1),
