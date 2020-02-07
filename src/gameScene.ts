@@ -276,6 +276,7 @@ export default class GameScene extends Phaser.Scene {
                 this
             );
         } else if (this.singleplayer && !this.gameOver) {
+            bomb.explode();
             player.die();
             this.startingBest = player.bestScore;
             this.gameOver = true;
@@ -295,6 +296,7 @@ export default class GameScene extends Phaser.Scene {
                 this
             );
         } else if (!this.singleplayer && !player.dead) {
+            bomb.explode();
             player.die();
             this.playersleft--;
             if (this.playersleft === 0) {
