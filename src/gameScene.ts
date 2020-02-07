@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import AlignGrid from './AlignGrid';
 import Player from './Player';
+import Bomb from './Bomb';
 
 export default class GameScene extends Phaser.Scene {
     stars: Phaser.Physics.Arcade.Group;
@@ -233,24 +234,21 @@ export default class GameScene extends Phaser.Scene {
         }
     }
     private spawnBomb() {
+        /* eslint-disable no-new */
         if (!this.gameOver) {
             // Randomly pick player 1 or player 2 - Will always return player 1 in case of single player
             const playerX = Math.floor(Math.random() * this.players.children.size);
             const player: Phaser.Physics.Arcade.Sprite = this.players.getFirstNth(playerX, true);
-
             const x =
                 player.x < this.gameWidth / 2
                     ? Phaser.Math.Between(this.gameWidth / 2, this.gameWidth)
                     : Phaser.Math.Between(0, this.gameWidth / 2);
 
-            const bomb: Phaser.Physics.Arcade.Body = this.bombs.create(x, 1, 'bomb');
-            bomb.setBounce(1, 1);
-            bomb.setCollideWorldBounds(true);
-            bomb.setVelocity(Phaser.Math.Between(-100, 100), 10);
+            new Bomb(this, this.bombs, x, 1, 'bomb');
         }
     }
 
-    private hitBomb(player: Player, bomb: Phaser.Physics.Arcade.Sprite): void {
+    private hitBomb(player: Player, bomb: Bomb): void {
         if (player.body.touching.down) {
             player.jump();
             player.doublejumps = this.doublejumps;
@@ -258,27 +256,18 @@ export default class GameScene extends Phaser.Scene {
             this.time.delayedCall(
                 500,
                 function() {
-                    bomb.body.stop();
-                    bomb.disableBody();
-                    bomb.anims.play('pixel_bomb', true);
-                    bomb.on(
-                        'animationcomplete',
+                    bomb.explode();
+                    bomb.once(
+                        'destroy',
                         function() {
-                            bomb.once(
-                                'destroy',
+                            this.time.delayedCall(
+                                7000,
                                 function() {
-                                    this.time.delayedCall(
-                                        7000,
-                                        function() {
-                                            this.spawnBomb();
-                                        },
-                                        null,
-                                        this
-                                    );
+                                    this.spawnBomb();
                                 },
+                                null,
                                 this
                             );
-                            bomb.destroy();
                         },
                         this
                     );

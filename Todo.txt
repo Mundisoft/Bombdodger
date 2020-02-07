@@ -24,7 +24,7 @@ Bomb spawns further away from player
 
 Bomb plays explode animation 2 bounces after being jumped on
 
-Create Player Class
+Callback hell in hitbomb - async await???
 
 
 Tween score to middle of screen at gameover
