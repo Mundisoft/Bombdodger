@@ -13,13 +13,13 @@ Different Levels
 
 Put asset loading into JSON
 
-Fix death animation bug --- hack fixed right now
-
 Pretty up the welcome screens and scores - better UI
 
 Remove bestscore and replace it with a text effect on score
 
 Bomb spawns further away from player
+
+Jump momentum -- using tweens?
 
 
 Bomb plays explode animation 2 bounces after being jumped on

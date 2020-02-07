@@ -227,6 +227,8 @@ export default class GameScene extends Phaser.Scene {
                         player.moveRight();
                     } else if (player.body.blocked.down) {
                         player.standIdle();
+                    } else if (player.body.blocked.none) {
+                        player.setVelocityX(0);
                     }
                     if (Phaser.Input.Keyboard.JustDown(player.up)) {
                         player.handleJump();
