@@ -50,6 +50,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     public die() {
         this.anims.play(`${this.key}_die`);
+        this.on('animationcomplete', function() {
+            this.destroy();
+        });
         this.dead = true;
     }
 
