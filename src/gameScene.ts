@@ -135,7 +135,15 @@ export default class GameScene extends Phaser.Scene {
 
         if (this.firstGame == null) {
             this.firstGame = true;
-            playerOne.hint = this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1);
+            if (this.singleplayer) {
+                playerOne.hint = this.add
+                    .image(-20, -20, 'arrows')
+                    .setFlipX(true)
+                    .setOrigin(0.2, 1);
+            } else {
+                playerOne.hint = this.add.image(-20, -20, 'WSAD').setOrigin(0.2, 1);
+            }
+
             this.agrid.placeAt(5, 14, playerOne.hint);
         } else {
             this.firstGame = false;
